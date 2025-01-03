@@ -3,7 +3,7 @@
 	"name": "Pinned Tab Customizer",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "An Obsidian plugin to improve the pinned tab experience with reduced size and emojis.",
+	"description": "Improve the pinned tab experience with emoji and customizable reduced size.",
 	"author": "Diego Marzá",
 	"authorUrl": "https://github.com/diegomarzaa",
 	"isDesktopOnly": false
