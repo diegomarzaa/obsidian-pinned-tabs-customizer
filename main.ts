@@ -103,6 +103,7 @@ import {
    */
   generateDynamicCSS() {
     let css = `
+      /* Pinned Tab Customizations */
       .workspace-tab-header:has(.mod-pinned) {
         max-width: ${this.settings.pinnedTabSize}px !important;
       }
@@ -134,14 +135,33 @@ import {
     // Append rules for each label → emoji mapping
     for (const pair of this.settings.labelEmojiMap) {
       const safeLabel = pair.label.replace(/"/g, '\\"');
+  
+      // Custom emoji for pinned tabs
       css += `
         .workspace-tab-header:has(.mod-pinned)[aria-label="${safeLabel}"]
           .workspace-tab-header-inner-title::after {
           content: "${pair.emoji}";
         }
       `;
+  
+      // Custom emoji for sidebar icons (only for mapped labels)
+      css += `
+        .workspace-tab-header[aria-label="${safeLabel}"] .workspace-tab-header-inner-icon svg {
+          display: none;
+        }
+  
+        .workspace-tab-header[aria-label="${safeLabel}"] .workspace-tab-header-inner-icon::before {
+          content: "${pair.emoji}";
+          font-size: 1.2em;
+          display: block;
+          line-height: 1;
+          text-align: center;
+          margin: 0 auto;
+        }
+      `;
     }
-
+  
+    // Apply the updated CSS to the <style> element
     this.styleEl.textContent = css;
   }
 }
