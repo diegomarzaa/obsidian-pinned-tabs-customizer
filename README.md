@@ -77,7 +77,7 @@
 ---
 
 ## Contribution
-Contributions are welcome! If you'd like to report bugs, suggest features, or submit pull requests, please visit the [GitHub repository](https://github.com/diegomarzaa/obsidian-pinned-tab-customizer).
+Contributions are welcome! If you'd like to report bugs, suggest features, or submit pull requests, please visit the [GitHub repository](https://github.com/diegomarzaa/obsidian-pinned-tabs-customizer).
 
 ---
 
@@ -88,4 +88,4 @@ This project is licensed under the [GNU GENERAL PUBLIC LICENSE](LICENSE).
 
 ## Acknowledgments
 - Built with love for the Obsidian community.
-- Inspired by [nicosomb shrink-pinned-tabs](https://github.com/nicosomb/obsidian-shrink-pinned-tabs) and [eduardohilariodev snippet](https://forum.obsidian.md/t/shrink-the-size-of-pinned-tabs-just-like-on-the-browser/88943?utm_source=chatgpt.com)
+- Inspired by [nicosomb shrink-pinned-tabs plugin](https://github.com/nicosomb/obsidian-shrink-pinned-tabs) and [eduardohilariodev snippet](https://forum.obsidian.md/t/shrink-the-size-of-pinned-tabs-just-like-on-the-browser/88943?utm_source=chatgpt.com)
