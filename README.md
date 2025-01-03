@@ -34,7 +34,7 @@
 
 ### Manual Installation
 1. Download the latest release from the [GitHub Releases](https://github.com/diegomarzaa/obsidian-pinned-tabs-customizer/releases) page.
-2. Extract the contents to your vault's `.obsidian/plugins/obsidian-pinned-tab-customizer` folder.
+2. Extract the contents to your vault's `.obsidian/plugins/obsidian-pinned-tabs-customizer` folder.
 3. Enable the plugin in Obsidian's **Community plugins** settings.
 
 ---
