@@ -232,7 +232,6 @@ export default class PinnedEmojiPlugin extends Plugin {
  * A simple modal for selecting or typing an emoji.
  */
 
-
 export class EmojiPickerModal extends Modal {
     private onSubmit: (emoji: string) => void;
     private label: string;
@@ -252,44 +251,42 @@ export class EmojiPickerModal extends Modal {
       contentEl.empty(); // Clear existing content
       contentEl.createEl("h2", { text: `Customize Pin for "${this.label}"` });
   
+      // Preview element
       const previewEl = contentEl.createEl("div", { cls: "emoji-preview" });
-      previewEl.style.fontSize = "2.5em";
-      previewEl.style.textAlign = "center";
-      previewEl.style.margin = "10px 0";
-  
-      const searchInput = contentEl.createEl("input", { type: "text", placeholder: "Search emojis globally..." });
-      searchInput.style.width = "100%";
-      searchInput.style.marginBottom = "10px";
+      // (Removed inline styles — now in CSS)
+
+      // Search input
+      const searchInput = contentEl.createEl("input", {
+        type: "text",
+        placeholder: "Search emojis globally...",
+        cls: "emoji-search-input", // class for CSS
+      });
+      // (Removed inline styles — now in CSS)
       searchInput.addEventListener("input", (e) => {
         this.searchQuery = (e.target as HTMLInputElement).value.toLowerCase();
         this.renderEmojiList(previewEl, emojiContainer); // Refresh the emoji list
       });
   
+      // Category tabs
       const categoryTabs = contentEl.createEl("div", { cls: "category-tabs" });
-      categoryTabs.style.display = "flex";
-      categoryTabs.style.gap = "10px";
-      categoryTabs.style.overflowX = "auto";
+      // (Removed inline styles — now in CSS)
       this.renderCategoryTabs(categoryTabs);
   
+      // Subcategory tabs
       const subCategoryTabs = contentEl.createEl("div", { cls: "subcategory-tabs" });
-      subCategoryTabs.style.display = "flex";
-      subCategoryTabs.style.gap = "10px";
-      subCategoryTabs.style.overflowX = "auto";
-      subCategoryTabs.style.marginBottom = "10px";
+      // (Removed inline styles — now in CSS)
       this.renderSubCategoryTabs(subCategoryTabs);
   
+      // Emoji container
       const emojiContainer = contentEl.createEl("div", { cls: "emoji-container" });
-      emojiContainer.style.display = "grid";
-      emojiContainer.style.gridTemplateColumns = "repeat(auto-fill, minmax(50px, 1fr))";
-      emojiContainer.style.gap = "10px";
-      emojiContainer.style.maxHeight = "300px";
-      emojiContainer.style.overflowY = "auto";
+      // (Removed inline styles — now in CSS)
       this.renderEmojiList(previewEl, emojiContainer);
   
+      // Button container
       const buttonContainer = contentEl.createEl("div", { cls: "button-container" });
-      buttonContainer.style.display = "flex";
-      buttonContainer.style.justifyContent = "space-between";
+      // (Removed inline styles — now in CSS)
   
+      // Save Button
       const saveButton = buttonContainer.createEl("button", {
         text: "Save",
         cls: "emoji-save-button",
@@ -313,15 +310,50 @@ export class EmojiPickerModal extends Modal {
         this.close();
       };
   
+      // Consolidated styles
       contentEl.createEl("style", {
         text: `
+          /* Layout and utility classes for EmojiPickerModal */
+          .emoji-preview {
+            font-size: 2.5em;
+            text-align: center;
+            margin: 10px 0;
+            border: 1px solid var(--background-modifier-border);
+            padding: 10px;
+            border-radius: 8px;
+          }
+
+          .emoji-search-input {
+            width: 100%;
+            margin-bottom: 10px;
+          }
+
+          .category-tabs,
+          .subcategory-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+          }
+          .subcategory-tabs {
+            margin-bottom: 10px;
+          }
+
           .emoji-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 10px;
             max-height: 300px;
             overflow-y: auto;
             border: 1px solid var(--background-modifier-border);
             border-radius: 8px;
             padding: 10px;
           }
+
+          .button-container {
+            display: flex;
+            justify-content: space-between;
+          }
+
           .emoji-card {
             font-size: 1.5em;
             border: 1px solid var(--background-modifier-border);
@@ -333,11 +365,7 @@ export class EmojiPickerModal extends Modal {
           .emoji-card:hover {
             background: var(--background-modifier-hover);
           }
-          .emoji-preview {
-            border: 1px solid var(--background-modifier-border);
-            padding: 10px;
-            border-radius: 8px;
-          }
+
           .emoji-save-button {
             background: var(--interactive-accent);
             color: var(--text-on-accent);
@@ -355,6 +383,12 @@ export class EmojiPickerModal extends Modal {
             border-radius: 8px;
             border: 1px solid var(--background-modifier-border);
             cursor: pointer;
+          }
+
+          .category-tab.active-tab,
+          .subcategory-tab.active-tab {
+            background: var(--interactive-accent-hover);
+            color: var(--text-on-accent);
           }
         `,
       });
@@ -574,5 +608,4 @@ export class PinnedEmojiSettingTab extends PluginSettingTab {
         `,
       });
     }
-  }
-  
+}
