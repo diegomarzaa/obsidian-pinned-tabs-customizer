@@ -103,22 +103,22 @@ export default class PinnedEmojiPlugin extends Plugin {
   */
   generateDynamicCSS() {
     let css = `
-      /* Pinned Tab Customizations */
-      .workspace-tab-header:has(.mod-pinned) {
+      /* Pinned Tab Customizations for Main Bar */
+      .workspace-tabs .workspace-tab-header:has(.mod-pinned) {
         max-width: ${this.settings.pinnedTabSize}px !important;
       }
-    
-      .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-inner-title {
+  
+      .workspace-tabs .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-inner-title {
         text-overflow: clip !important;
         visibility: hidden !important;
         position: relative;
       }
-    
-      .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-status-container {
-        display: none !important;
+  
+      .workspace-tabs .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-status-container {
+        display: none !important; /* Hide pinned icon in the main bar */
       }
-    
-      .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-inner-title::after {
+  
+      .workspace-tabs .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-inner-title::after {
         visibility: visible !important;
         position: absolute;
         top: 50%;
@@ -130,27 +130,33 @@ export default class PinnedEmojiPlugin extends Plugin {
         color: inherit;
         content: "${DEFAULT_PIN_EMOJI}"; /* Default to pin emoji */
       }
+  
+    /* Sidebar Customizations */
+    .workspace-split.mod-horizontal .workspace-tab-header:has(.mod-pinned) {
+      max-width: 48px !important; /* Fixed width for sidebar pinned tabs */
+    }
+
+    .workspace-split.mod-horizontal .workspace-tab-header .workspace-tab-header-status-container {
+      display: flex !important; /* Show pinned icon in the sidebar */
+    }
     `;
     
     // Append rules for each label → emoji mapping
     for (const pair of this.settings.labelEmojiMap) {
       const safeLabel = pair.label.replace(/"/g, '\\"');
-      
-      // Custom emoji for pinned tabs
       css += `
-        .workspace-tab-header:has(.mod-pinned)[aria-label="${safeLabel}"]
+        /* Custom emoji for pinned tabs */
+        .workspace-tabs .workspace-tab-header:has(.mod-pinned)[aria-label="${safeLabel}"]
           .workspace-tab-header-inner-title::after {
           content: "${pair.emoji}";
         }
-      `;
-      
-      // Custom emoji for sidebar icons (only for mapped labels)
-      css += `
-        .workspace-tab-header[aria-label="${safeLabel}"] .workspace-tab-header-inner-icon svg {
+  
+        /* Custom emoji for sidebar icons */
+        .workspace-split.mod-horizontal .workspace-tab-header[aria-label="${safeLabel}"] .workspace-tab-header-inner-icon svg {
           display: none;
         }
   
-        .workspace-tab-header[aria-label="${safeLabel}"] .workspace-tab-header-inner-icon::before {
+        .workspace-split.mod-horizontal .workspace-tab-header[aria-label="${safeLabel}"] .workspace-tab-header-inner-icon::before {
           content: "${pair.emoji}";
           font-size: 1.2em;
           display: block;
