@@ -1,0 +1,15 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [1.0.1] - 2025-01-04
+### Added
+- Custom emojis are now displayed in the sidebar.
+
+### Fixed
+- Fixed an issue where the emojis weren't completely centered in the pinned tabs.
+
+## [1.0.0] - 2025-01-01
+### Added
+- Initial release with main bar custom pinned tabs.
+- Settings for emoji and tab width.

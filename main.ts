@@ -130,15 +130,22 @@ export default class PinnedEmojiPlugin extends Plugin {
         color: inherit;
         content: "${DEFAULT_PIN_EMOJI}"; /* Default to pin emoji */
       }
-  
-    /* Sidebar Customizations */
-    .workspace-split.mod-horizontal .workspace-tab-header:has(.mod-pinned) {
-      max-width: 48px !important; /* Fixed width for sidebar pinned tabs */
-    }
 
-    .workspace-split.mod-horizontal .workspace-tab-header .workspace-tab-header-status-container {
-      display: flex !important; /* Show pinned icon in the sidebar */
-    }
+      /* Center the emoji in the tab */
+      .workspace-tabs .workspace-tab-header-inner {
+        padding-inline-end: 8px;
+        padding-inline-start: 8px;
+      }
+
+  
+      /* Sidebar Customizations */
+      .workspace-split.mod-horizontal .workspace-tab-header:has(.mod-pinned) {
+        max-width: 48px !important; /* Fixed width for sidebar pinned tabs */
+      }
+
+      .workspace-split.mod-horizontal .workspace-tab-header .workspace-tab-header-status-container {
+        display: flex !important; /* Show pinned icon in the sidebar */
+      }
     `;
     
     // Append rules for each label → emoji mapping
