@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2025-01-04
+### Fixed
+- Small bug fixes and code modularity improvements.
+
 ## [1.1.0] - 2025-01-04
 ### Added
 - **Emoji Picker Modal**: Introduced a robust emoji picker modal with:
