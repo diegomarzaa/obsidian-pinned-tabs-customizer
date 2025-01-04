@@ -6,7 +6,12 @@ import {
   FuzzySuggestModal,
   TFile,
   Notice,
+  Menu,
+  Modal,
+  TextComponent,
 } from 'obsidian';
+
+import EMOJI_DATA from "./data/emojis.json";
 
 /** --------------------------------
 *  INTERFACES & DEFAULTS
@@ -50,6 +55,20 @@ const COMMON_EMOJIS: Record<string, string> = {
   '⚡ Lightning': '⚡',
 };
 
+const EMOJI_LIST: { emoji: string; name: string; category: string }[] = [
+    { emoji: "😀", name: "Grinning Face", category: "Smileys & Emotion" },
+    { emoji: "🔥", name: "Fire", category: "Objects" },
+    { emoji: "🎉", name: "Party Popper", category: "Activities" },
+    { emoji: "📚", name: "Books", category: "Objects" },
+    { emoji: "❤️", name: "Red Heart", category: "Smileys & Emotion" },
+    { emoji: "📖", name: "Open Book", category: "Objects" },
+    { emoji: "✅", name: "Check Mark", category: "Symbols" },
+    { emoji: "🌟", name: "Star", category: "Nature" },
+    { emoji: "💡", name: "Light Bulb", category: "Objects" },
+    { emoji: "📌", name: "Pushpin", category: "Objects" },
+    // Add more emojis here...
+  ];
+
 /** --------------------------------
 *  MAIN PLUGIN CLASS
 * -------------------------------- */
@@ -70,6 +89,34 @@ export default class PinnedEmojiPlugin extends Plugin {
     
     // Register the plugin's settings tab.
     this.addSettingTab(new PinnedEmojiSettingTab(this.app, this));
+
+    // Register context menu for tabs
+    this.registerEvent(
+      this.app.workspace.on('file-menu', (menu, file) => {
+        menu.addItem((item) => {
+          item
+            .setTitle('Customize Pin')
+            .setIcon('edit')
+            .onClick(() => {
+              const label = file.name.replace(/\.md$/, ''); // Get the tab title
+              new EmojiPickerModal(this.app, label, async (emoji) => {
+                // Save the new emoji
+                const existing = this.settings.labelEmojiMap.find(
+                  (entry) => entry.label === label
+                );
+                if (existing) {
+                  existing.emoji = emoji;
+                } else {
+                  this.settings.labelEmojiMap.push({ label, emoji });
+                }
+                await this.saveSettings();
+                this.generateDynamicCSS();
+                new Notice(`Pinned emoji for "${label}" set to ${emoji}`);
+              }).open();
+            });
+        });
+      })
+    );
   }
   
   onunload() {
@@ -178,6 +225,213 @@ export default class PinnedEmojiPlugin extends Plugin {
     this.styleEl.textContent = css;
   }
 }
+
+/** --------------------------------
+ *  EMOJI PICKER MODAL
+ * --------------------------------
+ * A simple modal for selecting or typing an emoji.
+ */
+
+
+export class EmojiPickerModal extends Modal {
+    private onSubmit: (emoji: string) => void;
+    private label: string;
+    private currentCategory: string = "Smileys & Emotion";
+    private currentSubCategory: string | null = null;
+    private searchQuery: string = ""; // Track the current search query
+  
+    constructor(app: App, label: string, onSubmit: (emoji: string) => void) {
+      super(app);
+      this.label = label;
+      this.onSubmit = onSubmit;
+    }
+  
+    onOpen() {
+      const { contentEl } = this;
+  
+      contentEl.empty(); // Clear existing content
+      contentEl.createEl("h2", { text: `Customize Pin for "${this.label}"` });
+  
+      const previewEl = contentEl.createEl("div", { cls: "emoji-preview" });
+      previewEl.style.fontSize = "2.5em";
+      previewEl.style.textAlign = "center";
+      previewEl.style.margin = "10px 0";
+  
+      const searchInput = contentEl.createEl("input", { type: "text", placeholder: "Search emojis globally..." });
+      searchInput.style.width = "100%";
+      searchInput.style.marginBottom = "10px";
+      searchInput.addEventListener("input", (e) => {
+        this.searchQuery = (e.target as HTMLInputElement).value.toLowerCase();
+        this.renderEmojiList(previewEl, emojiContainer); // Refresh the emoji list
+      });
+  
+      const categoryTabs = contentEl.createEl("div", { cls: "category-tabs" });
+      categoryTabs.style.display = "flex";
+      categoryTabs.style.gap = "10px";
+      categoryTabs.style.overflowX = "auto";
+      this.renderCategoryTabs(categoryTabs);
+  
+      const subCategoryTabs = contentEl.createEl("div", { cls: "subcategory-tabs" });
+      subCategoryTabs.style.display = "flex";
+      subCategoryTabs.style.gap = "10px";
+      subCategoryTabs.style.overflowX = "auto";
+      subCategoryTabs.style.marginBottom = "10px";
+      this.renderSubCategoryTabs(subCategoryTabs);
+  
+      const emojiContainer = contentEl.createEl("div", { cls: "emoji-container" });
+      emojiContainer.style.display = "grid";
+      emojiContainer.style.gridTemplateColumns = "repeat(auto-fill, minmax(50px, 1fr))";
+      emojiContainer.style.gap = "10px";
+      emojiContainer.style.maxHeight = "300px";
+      emojiContainer.style.overflowY = "auto";
+      this.renderEmojiList(previewEl, emojiContainer);
+  
+      const buttonContainer = contentEl.createEl("div", { cls: "button-container" });
+      buttonContainer.style.display = "flex";
+      buttonContainer.style.justifyContent = "space-between";
+  
+      const saveButton = buttonContainer.createEl("button", {
+        text: "Save",
+        cls: "emoji-save-button",
+      });
+      saveButton.onclick = () => {
+        const selectedEmoji = previewEl.textContent?.trim();
+        if (!selectedEmoji) {
+          new Notice("Please select an emoji.");
+          return;
+        }
+        this.onSubmit(selectedEmoji);
+        this.close();
+      };
+  
+      const resetButton = buttonContainer.createEl("button", {
+        text: "Reset to Default",
+        cls: "emoji-reset-button",
+      });
+      resetButton.onclick = () => {
+        this.onSubmit("📌");
+        this.close();
+      };
+  
+      contentEl.createEl("style", {
+        text: `
+          .emoji-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--background-modifier-border);
+            border-radius: 8px;
+            padding: 10px;
+          }
+          .emoji-card {
+            font-size: 1.5em;
+            border: 1px solid var(--background-modifier-border);
+            border-radius: 8px;
+            text-align: center;
+            padding: 8px;
+            cursor: pointer;
+          }
+          .emoji-card:hover {
+            background: var(--background-modifier-hover);
+          }
+          .emoji-preview {
+            border: 1px solid var(--background-modifier-border);
+            padding: 10px;
+            border-radius: 8px;
+          }
+          .emoji-save-button {
+            background: var(--interactive-accent);
+            color: var(--text-on-accent);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+          }
+          .emoji-save-button:hover {
+            background: var(--interactive-accent-hover);
+          }
+          .emoji-reset-button {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--background-modifier-border);
+            cursor: pointer;
+          }
+        `,
+      });
+    }
+  
+    renderCategoryTabs(categoryTabs: HTMLElement) {
+      categoryTabs.empty();
+  
+      Object.keys(EMOJI_DATA.emojis).forEach((category) => {
+        const tab = categoryTabs.createEl("button", { text: category, cls: "category-tab" });
+        if (this.currentCategory === category) tab.addClass("active-tab");
+  
+        tab.onclick = () => {
+          this.currentCategory = category;
+          this.currentSubCategory = null; // Reset subcategory
+          this.searchQuery = ""; // Clear the search query
+          this.onOpen(); // Refresh the modal
+        };
+      });
+    }
+  
+    renderSubCategoryTabs(subCategoryTabs: HTMLElement) {
+      subCategoryTabs.empty();
+  
+      const subCategories = EMOJI_DATA.emojis[this.currentCategory];
+      Object.keys(subCategories).forEach((subCategory) => {
+        const tab = subCategoryTabs.createEl("button", {
+          text: subCategory.replace(/-/g, " "),
+          cls: "subcategory-tab",
+        });
+        if (this.currentSubCategory === subCategory) tab.addClass("active-tab");
+  
+        tab.onclick = () => {
+          this.currentSubCategory = subCategory;
+          this.searchQuery = ""; // Clear the search query
+          this.onOpen(); // Refresh the modal
+        };
+      });
+    }
+  
+    renderEmojiList(previewEl: HTMLElement, emojiContainer: HTMLElement) {
+      emojiContainer.empty();
+  
+      const emojis = this.searchQuery
+        ? Object.values(EMOJI_DATA.emojis)
+            .flatMap((category) => Object.values(category).flat())
+            .filter((emoji: { emoji: string; name: string }) =>
+              emoji.name.toLowerCase().includes(this.searchQuery) || emoji.emoji.includes(this.searchQuery)
+            )
+        : this.currentSubCategory
+        ? EMOJI_DATA.emojis[this.currentCategory][this.currentSubCategory]
+        : Object.values(EMOJI_DATA.emojis[this.currentCategory]).flat();
+  
+      if (emojis.length === 0) {
+        emojiContainer.createEl("div", { text: "No emojis found." });
+        return;
+      }
+  
+      emojis.forEach((emoji: { emoji: string; name: string }) => {
+        const emojiCard = emojiContainer.createEl("div", {
+          text: emoji.emoji,
+          cls: "emoji-card",
+        });
+        emojiCard.title = emoji.name;
+  
+        emojiCard.onclick = () => {
+          previewEl.textContent = emoji.emoji;
+        };
+      });
+    }
+  
+    onClose() {
+      this.contentEl.empty();
+    }
+  }
+  
+
 /** --------------------------------
 *  FILE PICKER MODAL
 * --------------------------------
@@ -211,208 +465,114 @@ class FilePickerModal extends FuzzySuggestModal<TFile> {
 * - pinned tab width
 * - file → emoji mappings
 */
-class PinnedEmojiSettingTab extends PluginSettingTab {
-  plugin: PinnedEmojiPlugin;
+
+
+export class PinnedEmojiSettingTab extends PluginSettingTab {
+    plugin: PinnedEmojiPlugin;
   
-  /** 
-  * Temporary storage while user picks a file + chooses an emoji
-  * before actually adding the mapping.
-  */
-  private tempLabel: string | null = null;  // For the file label
-  private tempEmoji: string | null = null;  // For the chosen emoji
+    constructor(app: App, plugin: PinnedEmojiPlugin) {
+      super(app, plugin);
+      this.plugin = plugin;
+    }
   
-  constructor(app: App, plugin: PinnedEmojiPlugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
+    display(): void {
+      const { containerEl } = this;
+      containerEl.empty();
   
-  display(): void {
-    const { containerEl } = this;
-    containerEl.empty();
-    
-    // Heading
-    containerEl.createEl('h1', { text: 'Pinned Tab Settings' });
-    
-    // 1) Slider: Pinned Tab Width
-    new Setting(containerEl)
-    .setName('Pinned Tab Width')
-    .setDesc(`Max width for pinned tabs. Currently: ${this.plugin.settings.pinnedTabSize}px`)
-    .addSlider((slider) => {
-      slider
-      .setLimits(20, 80, 1)
-      .setDynamicTooltip()
-      .setValue(this.plugin.settings.pinnedTabSize)
-      .onChange(async (val) => {
-        this.plugin.settings.pinnedTabSize = val;
-        await this.plugin.saveSettings();
-      });
-    });
-    
-    // 2) Existing Mappings
-    containerEl.createEl('h1', { text: 'Current Mappings' });
-    
-    new Setting(containerEl)
-    .setName('Reset Settings')
-    .setDesc('Restore all settings to their default values.')
-    .addButton((btn) => {
-      btn
-      .setIcon('refresh-cw') // Use Lucide icons (e.g., refresh-cw for reset)
-      .setButtonText('Reset')
-      .setWarning() // Makes the button styled as a warning
-      .onClick(async () => {
-        console.log('Settings reset to defaults.');
-        // Logic for resetting settings here
-        this.plugin.settings = DEFAULT_SETTINGS;
-        await this.plugin.saveSettings();
-        this.display();
-        
-        // Show a notice to the user
-        new Notice('Settings have been reset to their defaults.');
-      });
-    });
-    
-    // List existing mappings in collapsible sections
-    this.plugin.settings.labelEmojiMap.forEach((mapping, index) => {
-      const details = containerEl.createEl('details');
-      details.createEl('summary', { text: mapping.label });
-      
-      // Edit Label
-      new Setting(details)
-      .setName('File Label')
-      .setDesc('The pinned tab label or file name.')
-      .addText((text) => {
-        text
-        .setValue(mapping.label)
-        .onChange(async (val) => {
-          mapping.label = val;
-          await this.plugin.saveSettings();
-        });
-      });
-      
-      // Edit Emoji
-      new Setting(details)
-      .setName('Emoji')
-      .setDesc('Which emoji to display for this pinned tab.')
-      .addDropdown((dropdown) => {
-        // Add a default (empty) option and the common emojis
-        dropdown.addOption('', '— Pick an emoji —');
-        for (const [label, emoji] of Object.entries(COMMON_EMOJIS)) {
-          dropdown.addOption(emoji, `${label} (${emoji})`);
-        }
-        // Also set an "Other" option if user wants to type their own
-        dropdown.addOption('other', 'Type your own...');
-        dropdown.setValue(
-          Object.values(COMMON_EMOJIS).includes(mapping.emoji) ? mapping.emoji : 'other'
+      containerEl.createEl("h2", { text: "Pinned Tab Customization Settings" });
+  
+      new Setting(containerEl)
+        .setName("Pinned Tab Width")
+        .setDesc("Set the width of pinned tabs in pixels.")
+        .addSlider((slider) =>
+          slider
+            .setLimits(20, 80, 1)
+            .setValue(this.plugin.settings.pinnedTabSize)
+            .onChange(async (value) => {
+              this.plugin.settings.pinnedTabSize = value;
+              await this.plugin.saveSettings();
+            })
         );
-        
-        dropdown.onChange(async (val) => {
-          if (val === 'other') {
-            // If user picks "other," do nothing — we'll rely on the text field below.
-          } else {
-            mapping.emoji = val;
-            await this.plugin.saveSettings();
-            this.display(); // refresh to show updated text
-          }
+  
+      const mappingContainer = containerEl.createEl("div", { cls: "mapping-container" });
+  
+      this.plugin.settings.labelEmojiMap.forEach((mapping, index) => {
+        const card = mappingContainer.createEl("div", { cls: "mapping-card" });
+  
+        const labelInput = card.createEl("input", {
+          type: "text",
+          value: mapping.label,
+          cls: "label-input",
         });
-      })
-      .addText((text) => {
-        text
-        .setPlaceholder('Or paste your own emoji')
-        .setValue(mapping.emoji)
-        .onChange(async (val) => {
-          mapping.emoji = val;
+        labelInput.onblur = async () => {
+          mapping.label = labelInput.value;
           await this.plugin.saveSettings();
-        });
-      });
-      
-      // Remove Mapping
-      new Setting(details)
-      .addButton((btn) => {
-        btn
-        .setButtonText('Remove Mapping')
-        .setWarning()
-        .onClick(async () => {
+        };
+  
+        const emojiButton = card.createEl("button", { text: mapping.emoji || "Pick Emoji", cls: "emoji-button" });
+        emojiButton.onclick = () => {
+          new EmojiPickerModal(this.app, mapping.label, async (emoji) => {
+            mapping.emoji = emoji;
+            emojiButton.textContent = emoji;
+            await this.plugin.saveSettings();
+          }).open();
+        };
+  
+        const fileButton = card.createEl("button", { text: "Pick File", cls: "file-button" });
+        fileButton.onclick = () => {
+          new FilePickerModal(this.app, async (file) => {
+            mapping.label = file.name.replace(/\.md$/, "");
+            labelInput.value = mapping.label;
+            await this.plugin.saveSettings();
+          }).open();
+        };
+  
+        const deleteButton = card.createEl("button", { text: "Delete", cls: "delete-button" });
+        deleteButton.onclick = async () => {
           this.plugin.settings.labelEmojiMap.splice(index, 1);
           await this.plugin.saveSettings();
           this.display();
-        });
+        };
       });
-    });
-    
-    // 3) Add a New Mapping
-    containerEl.createEl('h1', { text: 'Add a New Mapping' });
-    
-    // Step 1: Pick a file
-    new Setting(containerEl)
-    .setName('Pick a File')
-    .setDesc(this.tempLabel ? `Chosen: ${this.tempLabel}` : 'No file chosen yet.')
-    .addButton((btn) => {
-      btn
-      .setButtonText('Choose File')
-      .onClick(() => {
-        new FilePickerModal(this.app, (file) => {
-          // Remove .md extension from the file name
-          const label = file.name.replace(/\.md$/, '');
-          this.tempLabel = label;
-          this.display(); // Refresh the UI
-        }).open();
+  
+      new Setting(containerEl)
+        .setName("Add New Mapping")
+        .addButton((btn) =>
+          btn.setButtonText("Add").onClick(async () => {
+            this.plugin.settings.labelEmojiMap.push({ label: "New Tab", emoji: "📌" });
+            await this.plugin.saveSettings();
+            this.display();
+          })
+        );
+  
+      containerEl.createEl("style", {
+        text: `
+          .mapping-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 10px;
+          }
+          .mapping-card {
+            border: 1px solid var(--background-modifier-border);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+          }
+          .label-input {
+            width: 100%;
+          }
+          .emoji-button, .file-button, .delete-button {
+            padding: 5px;
+            border-radius: 5px;
+          }
+          .delete-button {
+            background: var(--interactive-critical);
+            color: var(--text-on-accent);
+          }
+        `,
       });
-    });
-    
-    // Step 2: Choose an emoji
-    new Setting(containerEl)
-    .setName('Choose an Emoji')
-    .setDesc(this.tempEmoji ? `Emoji: ${this.tempEmoji}` : 'No emoji chosen yet.')
-    .addDropdown((dropdown) => {
-      dropdown.addOption('', '— Pick an emoji —');
-      for (const [label, emoji] of Object.entries(COMMON_EMOJIS)) {
-        dropdown.addOption(emoji, `${label} (${emoji})`);
-      }
-      dropdown.setValue('');
-      
-      dropdown.onChange((val) => {
-        if (val !== '') {
-          this.tempEmoji = val;
-          this.display();
-        }
-      });
-    })
-    .addText((text) => {
-      text
-      .setPlaceholder('Or put your own emoji')
-      .setValue(this.tempEmoji || '') // Show current emoji(s) in text input
-      .onChange((val) => {
-        this.tempEmoji = val;
-        this.display(); // show the newly typed emoji in the desc
-      });
-    });
-    
-    // Step 3: Add the mapping once both are chosen
-    new Setting(containerEl)
-    .setName('Add Mapping')
-    .setDesc('When both file & emoji are chosen, click to add.')
-    .addButton((btn) => {
-      btn
-      .setButtonText('Add Mapping')
-      .setCta()
-      .onClick(async () => {
-        if (!this.tempLabel || !this.tempEmoji) {
-          new Notice('Please choose both a file and an emoji first!');
-          return;
-        }
-        // Create a new mapping
-        this.plugin.settings.labelEmojiMap.push({
-          label: this.tempLabel,
-          emoji: this.tempEmoji,
-        });
-        await this.plugin.saveSettings();
-        
-        // Reset temp fields
-        this.tempLabel = null;
-        this.tempEmoji = null;
-        this.display();
-        new Notice('New mapping added!');
-      });
-    });
+    }
   }
-}
+  
