@@ -4,88 +4,92 @@
 ![Version](https://img.shields.io/github/v/release/diegomarzaa/obsidian-pinned-tabs-customizer)
 ![Obsidian Min Version](https://img.shields.io/badge/Obsidian-0.15.0%2B-brightgreen)
 
-**Obsidian Pinned Tab Emoji Customizer** is a plugin that lets you enhance your pinned tabs by adding custom emojis, managing their appearance, and personalizing your workflow. Perfect for users who want a more visual and engaging experience while working in Obsidian.
+**Pinned Tab Emoji Customizer** is a plugin that lets you enhance your pinned tabs by adding custom emojis, managing their appearance, and personalizing your workflow. Perfect for users who want a more visual and engaging experience while working in Obsidian.
 
----
 
-## Features
+## ✨ Features
 
 ### 🎨 **Custom Emojis for Pinned Tabs**
-- Assign any emoji to your pinned tabs for quick visual recognition.
-- Use the built-in emoji picker or type/paste your own.
+- Assign custom emojis to pinned tabs for instant recognition.
+- Choose from a comprehensive emoji picker with:
+    - Global search for any emoji by name.
+    - Browsing emojis by category (e.g., Smileys, Objects, Activities).
+- Use a default pin emoji (📌) for unmapped tabs or set your own.
 
 ### 📂 **File-to-Emoji Mapping**
-- Easily map specific files to emojis.
-- Preview and manage all mappings in an intuitive interface.
+- Map specific files to custom emojis for seamless organization.
+- Easily assign emojis to tabs via a right-click option on tab "Customize Pin" option.
+- Edit, add, or remove mappings directly in an interactive settings interface.
 - By default, the plugin uses the next three mappings:
   - 🏠 for 'Home'
   - 📋 for 'Tasks'
   - 📖 for 'Books'
 
 ### 📏 **Adjustable Pinned Tab Width**
-- Customize the width of your pinned tabs with a handy slider.
+- Customize pinned tab widths using an intuitive slider in settings.
 
-### 🖼️ **Default Emoji for Unmapped Tabs**
-- Automatically applies a pin emoji (`📌`) to pinned tabs without specific mappings.
 
----
-
-## Installation
+## 🚀 Installation
 
 ### Manual Installation
 1. Download the latest release from the [GitHub Releases](https://github.com/diegomarzaa/obsidian-pinned-tabs-customizer/releases) page.
 2. Extract the contents to your vault's `.obsidian/plugins/obsidian-pinned-tabs-customizer` folder.
 3. Enable the plugin in Obsidian's **Community plugins** settings.
 
----
 
-## How to Use
+## 🛠️ How to Use
 
-### Configure Pinned Tab Appearance
-1. Go to **Settings → Pinned Tab Customizer**.
-2. Adjust the **Pinned Tab Width** slider to change the width of pinned tabs.
-
-### Manage File-to-Emoji Mappings
-1. In the **Current Mappings** section:
-   - View, edit, or remove existing mappings.
-2. In the **Add a New Mapping** section:
-   - Choose a file using the **Pick a File** button.
-   - Select an emoji using the **Choose an Emoji** dropdown or put your own.
-   - Click **Add Mapping** to save.
-
-### Default Emoji for Unmapped Tabs
-- Tabs without a specific mapping will automatically display the pin emoji (`📌`).
-
----
-
-## Screenshots
+### **Emoji Picker**
+1. Right-click a pinned tab and select **"Customize Pin"**.
+2. Search for an emoji globally or browse by category.
+3. Click an emoji to select it.
+4. Click **Save** to apply or **Reset to Default** to restore the default pin emoji.
 
 ### **Settings Interface**
-![Settings Screenshot](settings_screenshot.png)
+1. Navigate to **Settings → Pinned Tab Customizer**.
+2. **Adjust Pinned Tab Width**:
+   - Use the slider to modify pinned tab widths.
+3. **Manage File-to-Emoji Mappings**:
+   - View, edit, or remove existing mappings.
+   - Add new mappings by selecting a file and assigning an emoji.
+4. Changes take effect instantly, no restart required!
 
-### **Usage Example (pin vs no pin)**
-![Usage Example](usage_example.png)
 
 
----
 
-## Roadmap
-- [ ] Add advanced tab customization options (colors, borders, fonts, etc.).
-- [ ] Support bulk mappings for multiple files.
-- [ ] Dark mode-specific adjustments.
 
----
 
-## Contribution
-Contributions are welcome! If you'd like to report bugs, suggest features, or submit pull requests, please visit the [GitHub repository](https://github.com/diegomarzaa/obsidian-pinned-tabs-customizer).
 
----
+## 📷 Screenshots
 
-## License
-This project is licensed under the [GNU GENERAL PUBLIC LICENSE](LICENSE).
+### **Custom Emoji Picker**
+A beautiful emoji picker with global search and categories:
+![Emoji Picker](./imgs/emoji_picker.png)
 
----
+### **Interactive Settings**
+Manage pinned tabs and customize emoji mappings:
+![Settings Screenshot](./imgs/settings.png)
 
-## Acknowledgments
-- Built with love for the Obsidian community.
-- Inspired by [nicosomb shrink-pinned-tabs plugin](https://github.com/nicosomb/obsidian-shrink-pinned-tabs) and [eduardohilariodev snippet](https://forum.obsidian.md/t/shrink-the-size-of-pinned-tabs-just-like-on-the-browser/88943?utm_source=chatgpt.com)
+### **Pinned Tab with Emojis**
+Visualize your pinned tabs with custom emojis:
+![Pinned Tabs Example](./imgs/pinned_tabs.png)
+
+
+## 🌟 Roadmap
+- [ ] Regex-based tab mapping for advanced use cases.
+- [ ] Bulk mapping for multiple files.
+- [ ] Enhanced tab styling (colors, borders, fonts, etc.).
+
+
+## 🤝 Contribution
+Contributions are welcome! Whether you’d like to report a bug, suggest a feature, or submit a pull request, visit the [GitHub repository](https://github.com/diegomarzaa/obsidian-pinned-tabs-customizer).
+
+
+## 📝 License
+This project is licensed under the [GNU General Public License](LICENSE).
+
+
+## 💡 Acknowledgments
+- Inspired by [nicosomb shrink-pinned-tabs plugin](https://github.com/nicosomb/obsidian-shrink-pinned-tabs) and [eduardohilariodev snippet](https://forum.obsidian.md/t/shrink-the-size-of-pinned-tabs-just-like-on-the-browser/).
+- Emoji data powered by the [Open Emoji JSON dataset](https://github.com/chalda-pnuzig/emojis.json).
+
