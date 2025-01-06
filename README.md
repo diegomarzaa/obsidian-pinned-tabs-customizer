@@ -88,6 +88,13 @@ Contributions are welcome! Whether you’d like to report a bug, suggest a featu
 ## 📝 License
 This project is licensed under the [GNU General Public License](LICENSE).
 
+## 📧 Contact
+
+If you have any questions, feedback, or need assistance, feel free to reach out:
+
+- **GitHub Issues**: [Report an Issue](https://github.com/diegomarzaa/obsidian-pinned-tabs-customizer/issues)
+- **Email**: [diegomarzafuertes@gmail.com](mailto:diegomarzafuertes@gmail.com)
+
 
 ## 💡 Acknowledgments
 - Inspired by [nicosomb shrink-pinned-tabs plugin](https://github.com/nicosomb/obsidian-shrink-pinned-tabs) and [eduardohilariodev snippet](https://forum.obsidian.md/t/shrink-the-size-of-pinned-tabs-just-like-on-the-browser/).
