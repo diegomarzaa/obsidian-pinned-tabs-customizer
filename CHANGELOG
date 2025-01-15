@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file.
   - File-specific emoji mapping using a streamlined interface.
   - Dynamic addition, editing, and deletion of mappings.
   - Live updates for saved settings.
-- **Context Menu Option**: Added "Customize Pin" option in the tab's right-click menu, allowing users to directly assign emojis to tabs.
+- **Context Menu Option**: Added "Customize pin" option in the tab's right-click menu, allowing users to directly assign emojis to tabs.
 
 ## [1.0.1] - 2025-01-04
 ### Added

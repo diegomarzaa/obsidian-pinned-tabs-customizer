@@ -23,10 +23,8 @@ export class PinnedEmojiSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    containerEl.createEl("h2", { text: "Pinned Tab Customization Settings" });
-
     new Setting(containerEl)
-      .setName("Pinned Tab Width")
+      .setName("Pinned tab width")
       .setDesc("Set the width of pinned tabs in pixels.")
       .addSlider((slider) =>
         slider
@@ -54,7 +52,7 @@ export class PinnedEmojiSettingTab extends PluginSettingTab {
       };
 
       const emojiButton = card.createEl("button", {
-        text: mapping.emoji || "Pick Emoji",
+        text: mapping.emoji || "Pick emoji",
         cls: "emoji-button",
       });
       emojiButton.onclick = () => {
@@ -66,7 +64,7 @@ export class PinnedEmojiSettingTab extends PluginSettingTab {
       };
 
       const fileButton = card.createEl("button", {
-        text: "Pick File",
+        text: "Pick file",
         cls: "file-button",
       });
       fileButton.onclick = () => {
@@ -89,7 +87,7 @@ export class PinnedEmojiSettingTab extends PluginSettingTab {
     });
 
     new Setting(containerEl)
-      .setName("Add New Mapping")
+      .setName("Add new mapping")
       .addButton((btn) =>
         btn.setButtonText("Add").onClick(async () => {
           this.plugin.settings.labelEmojiMap.push({ label: "New Tab", emoji: "📌" });

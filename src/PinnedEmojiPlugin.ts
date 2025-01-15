@@ -22,12 +22,12 @@ export class PinnedEmojiPlugin extends Plugin {
     // Register the plugin's settings tab.
     this.addSettingTab(new PinnedEmojiSettingTab(this.app, this));
 
-    // Register context menu for tabs (the "Customize Pin" entry)
+    // Register context menu for tabs (the "Customize pin" entry)
     this.registerEvent(
       this.app.workspace.on('file-menu', (menu, file) => {
         menu.addItem((item) => {
           item
-            .setTitle('Customize Pin')
+            .setTitle('Customize pin')
             .setIcon('edit')
             .onClick(() => {
               const label = file.name.replace(/\.md$/, ''); // Get the tab title

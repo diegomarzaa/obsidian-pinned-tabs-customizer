@@ -25,7 +25,7 @@ export class EmojiPickerModal extends Modal {
     const { contentEl } = this;
 
     contentEl.empty(); // Clear existing content
-    contentEl.createEl("h2", { text: `Customize Pin for "${this.label}"` });
+    contentEl.createEl("h2", { text: `Customize pin for "${this.label}"` });
 
     // Preview element
     const previewEl = contentEl.createEl("div", { cls: "emoji-preview" });
@@ -73,7 +73,7 @@ export class EmojiPickerModal extends Modal {
 
     // Reset Button
     const resetButton = buttonContainer.createEl("button", {
-      text: "Reset to Default",
+      text: "Reset to default",
       cls: "emoji-reset-button",
     });
     resetButton.onclick = () => {
