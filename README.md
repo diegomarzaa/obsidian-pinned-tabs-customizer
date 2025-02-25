@@ -1,10 +1,18 @@
-# Obsidian Pinned Tab Emoji Customizer
+# Pinned Tab Emoji Customizer
 
 ![License](https://img.shields.io/github/license/diegomarzaa/obsidian-pinned-tabs-customizer)
 ![Version](https://img.shields.io/github/v/release/diegomarzaa/obsidian-pinned-tabs-customizer)
 ![Obsidian Min Version](https://img.shields.io/badge/Obsidian-0.15.0%2B-brightgreen)
 
 **Pinned Tab Emoji Customizer** is a plugin that lets you enhance your pinned tabs by adding custom emojis, managing their appearance, and personalizing your workflow. Perfect for users who want a more visual and engaging experience while working in Obsidian.
+
+![Pinned Tabs Example](./imgs/pinned_tabs.png)
+
+A beautiful emoji picker with global search and categories:
+![Emoji Picker](./imgs/emoji_picker.png)
+
+Manage pinned tabs and customize emoji mappings:
+![Settings Screenshot](./imgs/settings.png)
 
 
 ## ✨ Features
@@ -18,7 +26,7 @@
 
 ### 📂 **File-to-Emoji Mapping**
 - Map specific files to custom emojis for seamless organization.
-- Easily assign emojis to tabs via a right-click option on tab "Customize Pin" option.
+- Easily assign emojis to tabs via a right-click option on tab "Customize pin" option.
 - Edit, add, or remove mappings directly in an interactive settings interface.
 - By default, the plugin uses the next three mappings:
   - 🏠 for 'Home'
@@ -40,40 +48,19 @@
 ## 🛠️ How to Use
 
 ### **Emoji Picker**
-1. Right-click a pinned tab and select **"Customize Pin"**.
+1. Right-click a pinned tab and select **"Customize pin"**.
 2. Search for an emoji globally or browse by category.
 3. Click an emoji to select it.
-4. Click **Save** to apply or **Reset to Default** to restore the default pin emoji.
+4. Click **Save** to apply or **Reset to default** to restore the default pin emoji.
 
 ### **Settings Interface**
 1. Navigate to **Settings → Pinned Tab Customizer**.
-2. **Adjust Pinned Tab Width**:
+2. **Adjust pinned tab width**:
    - Use the slider to modify pinned tab widths.
 3. **Manage File-to-Emoji Mappings**:
    - View, edit, or remove existing mappings.
    - Add new mappings by selecting a file and assigning an emoji.
 4. Changes take effect instantly, no restart required!
-
-
-
-
-
-
-
-## 📷 Screenshots
-
-### **Custom Emoji Picker**
-A beautiful emoji picker with global search and categories:
-![Emoji Picker](./imgs/emoji_picker.png)
-
-### **Interactive Settings**
-Manage pinned tabs and customize emoji mappings:
-![Settings Screenshot](./imgs/settings.png)
-
-### **Pinned Tab with Emojis**
-Visualize your pinned tabs with custom emojis:
-![Pinned Tabs Example](./imgs/pinned_tabs.png)
-
 
 ## 🌟 Roadmap
 - [ ] Regex-based tab mapping for advanced use cases.
