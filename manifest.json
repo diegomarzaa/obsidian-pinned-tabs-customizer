@@ -1,7 +1,7 @@
 {
 	"id": "pinned-tab-customizer",
 	"name": "Pinned Tab Customizer",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"minAppVersion": "0.15.0",
 	"description": "Improve the pinned tab experience with emoji and customizable reduced size.",
 	"author": "Diego Marzá",
