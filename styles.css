@@ -8,6 +8,10 @@
 	--pinned-emoji-transform: translate(-50%, -50%);
 }
 
+.workspace-tabs .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-status-container {
+	display: none !important;
+}
+
 /* Estilos estáticos para las pestañas fijadas */
 .workspace-tabs .workspace-tab-header:has(.mod-pinned) {
 	max-width: var(--pinned-tab-width) !important;
@@ -29,15 +33,21 @@
 	line-height: 1;
 	display: block;
 	color: inherit;
-	content: var(--default-pinned-emoji);
+	content: var(--custom-emoji, var(--default-pinned-emoji));
 }
 
-/* Sidebar */
-.workspace-split.mod-horizontal .workspace-tab-header {
-	max-width: 48px !important;
+/* Para la barra lateral */
+.workspace-split.mod-horizontal .workspace-tab-header .workspace-tab-header-inner-icon svg {
+	display: none;
 }
-.workspace-split.mod-horizontal .workspace-tab-header .workspace-tab-header-status-container {
-	display: flex !important;
+
+.workspace-split.mod-horizontal .workspace-tab-header .workspace-tab-header-inner-icon::before {
+	font-size: 1.2em;
+	display: block;
+	line-height: 1;
+	text-align: center;
+	margin: 0 auto;
+	content: var(--custom-emoji, var(--default-pinned-emoji));
 }
 
 /* Estilos del EmojiPickerModal */
