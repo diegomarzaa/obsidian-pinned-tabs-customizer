@@ -79,78 +79,60 @@ export class PinnedEmojiPlugin extends Plugin {
    * - Adds default "📌" emoji for unmapped pinned tabs.
    */
   generateDynamicCSS() {
-    let css = `
-      /* Pinned Tab Customizations for Main Bar */
-      .workspace-tabs .workspace-tab-header:has(.mod-pinned) {
-        max-width: ${this.settings.pinnedTabSize}px !important;
-      }
+	let dynamicCSS = `
+		/* Dynamic: ancho de la pestaña según la configuración */
+		.workspace-tabs .workspace-tab-header:has(.mod-pinned) {
+			max-width: ${this.settings.pinnedTabSize}px !important;
+		}
 
-      .workspace-tabs .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-inner-title {
-        text-overflow: clip !important;
-        visibility: hidden !important;
-        position: relative;
-      }
+		/* Dynamic: emoji por defecto */
+		.workspace-tabs .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-inner-title::after {
+			visibility: visible !important;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			font-size: 1.3em;
+			line-height: 1;
+			display: block;
+			color: inherit;
+			content: "${DEFAULT_PIN_EMOJI}";
+		}
+	`;
 
-      .workspace-tabs .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-status-container {
-        display: none !important; /* Hide pinned icon in the main bar */
-      }
+	for (const pair of this.settings.labelEmojiMap) {
+		const safeLabel = pair.label.replace(/"/g, '\\"');
+		dynamicCSS += `
+			/* Emoji personalizado para "${pair.label}" */
+			.workspace-tabs .workspace-tab-header:has(.mod-pinned)[aria-label="${safeLabel}"] .workspace-tab-header-inner-title::after {
+				visibility: visible !important;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				font-size: 1.3em;
+				line-height: 1;
+				display: block;
+				color: inherit;
+				content: "${pair.emoji}";
+			}
 
-      .workspace-tabs .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-inner-title::after {
-        visibility: visible !important;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 1.3em;
-        line-height: 1;
-        display: block;
-        color: inherit;
-        content: "${DEFAULT_PIN_EMOJI}"; /* Default to pin emoji */
-      }
+			/* Emoji para la barra lateral */
+			.workspace-split.mod-horizontal .workspace-tab-header[aria-label="${safeLabel}"] .workspace-tab-header-inner-icon svg {
+				display: none;
+			}
 
-      /* Center the emoji in the tab */
-      .workspace-tabs .workspace-tab-header-inner {
-        padding-inline-end: 8px;
-        padding-inline-start: 8px;
-      }
+			.workspace-split.mod-horizontal .workspace-tab-header[aria-label="${safeLabel}"] .workspace-tab-header-inner-icon::before {
+				content: "${pair.emoji}";
+				font-size: 1.2em;
+				display: block;
+				line-height: 1;
+				text-align: center;
+				margin: 0 auto;
+			}
+		`;
+	}
 
-      /* Sidebar Customizations */
-      .workspace-split.mod-horizontal .workspace-tab-header:has(.mod-pinned) {
-        max-width: 48px !important; /* Fixed width for sidebar pinned tabs */
-      }
-
-      .workspace-split.mod-horizontal .workspace-tab-header .workspace-tab-header-status-container {
-        display: flex !important; /* Show pinned icon in the sidebar */
-      }
-    `;
-
-    // Append rules for each label → emoji mapping
-    for (const pair of this.settings.labelEmojiMap) {
-      const safeLabel = pair.label.replace(/"/g, '\\"');
-      css += `
-        /* Custom emoji for pinned tabs */
-        .workspace-tabs .workspace-tab-header:has(.mod-pinned)[aria-label="${safeLabel}"]
-          .workspace-tab-header-inner-title::after {
-          content: "${pair.emoji}";
-        }
-
-        /* Custom emoji for sidebar icons */
-        .workspace-split.mod-horizontal .workspace-tab-header[aria-label="${safeLabel}"] .workspace-tab-header-inner-icon svg {
-          display: none;
-        }
-
-        .workspace-split.mod-horizontal .workspace-tab-header[aria-label="${safeLabel}"] .workspace-tab-header-inner-icon::before {
-          content: "${pair.emoji}";
-          font-size: 1.2em;
-          display: block;
-          line-height: 1;
-          text-align: center;
-          margin: 0 auto;
-        }
-      `;
-    }
-
-    // Apply the updated CSS to the <style> element
-    this.styleEl.textContent = css;
+	this.styleEl.textContent = dynamicCSS;
   }
 }

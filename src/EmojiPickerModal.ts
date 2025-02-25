@@ -82,88 +82,88 @@ export class EmojiPickerModal extends Modal {
     };
 
     // Consolidated styles
-    contentEl.createEl("style", {
-      text: `
-        /* Layout and utility classes for EmojiPickerModal */
-        .emoji-preview {
-          font-size: 2.5em;
-          text-align: center;
-          margin: 10px 0;
-          border: 1px solid var(--background-modifier-border);
-          padding: 10px;
-          border-radius: 8px;
-        }
+    // contentEl.createEl("style", {
+    //   text: `
+    //     /* Layout and utility classes for EmojiPickerModal */
+    //     .emoji-preview {
+    //       font-size: 2.5em;
+    //       text-align: center;
+    //       margin: 10px 0;
+    //       border: 1px solid var(--background-modifier-border);
+    //       padding: 10px;
+    //       border-radius: 8px;
+    //     }
 
-        .emoji-search-input {
-          width: 100%;
-          margin-bottom: 10px;
-        }
+    //     .emoji-search-input {
+    //       width: 100%;
+    //       margin-bottom: 10px;
+    //     }
 
-        .category-tabs,
-        .subcategory-tabs {
-          display: flex;
-          gap: 10px;
-          overflow-x: auto;
-        }
-        .subcategory-tabs {
-          margin-bottom: 10px;
-        }
+    //     .category-tabs,
+    //     .subcategory-tabs {
+    //       display: flex;
+    //       gap: 10px;
+    //       overflow-x: auto;
+    //     }
+    //     .subcategory-tabs {
+    //       margin-bottom: 10px;
+    //     }
 
-        .emoji-container {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-          gap: 10px;
-          max-height: 300px;
-          overflow-y: auto;
-          border: 1px solid var(--background-modifier-border);
-          border-radius: 8px;
-          padding: 10px;
-        }
+    //     .emoji-container {
+    //       display: grid;
+    //       grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    //       gap: 10px;
+    //       max-height: 300px;
+    //       overflow-y: auto;
+    //       border: 1px solid var(--background-modifier-border);
+    //       border-radius: 8px;
+    //       padding: 10px;
+    //     }
 
-        .button-container {
-          display: flex;
-          justify-content: space-between;
-        }
+    //     .button-container {
+    //       display: flex;
+    //       justify-content: space-between;
+    //     }
 
-        .emoji-card {
-          font-size: 1.5em;
-          border: 1px solid var(--background-modifier-border);
-          border-radius: 8px;
-          text-align: center;
-          padding: 8px;
-          cursor: pointer;
-        }
-        .emoji-card:hover {
-          background: var(--background-modifier-hover);
-        }
+    //     .emoji-card {
+    //       font-size: 1.5em;
+    //       border: 1px solid var(--background-modifier-border);
+    //       border-radius: 8px;
+    //       text-align: center;
+    //       padding: 8px;
+    //       cursor: pointer;
+    //     }
+    //     .emoji-card:hover {
+    //       background: var(--background-modifier-hover);
+    //     }
 
-        .emoji-save-button {
-          background: var(--interactive-accent);
-          color: var(--text-on-accent);
-          padding: 10px 15px;
-          border-radius: 8px;
-          font-weight: bold;
-          border: none;
-          cursor: pointer;
-        }
-        .emoji-save-button:hover {
-          background: var(--interactive-accent-hover);
-        }
+    //     .emoji-save-button {
+    //       background: var(--interactive-accent);
+    //       color: var(--text-on-accent);
+    //       padding: 10px 15px;
+    //       border-radius: 8px;
+    //       font-weight: bold;
+    //       border: none;
+    //       cursor: pointer;
+    //     }
+    //     .emoji-save-button:hover {
+    //       background: var(--interactive-accent-hover);
+    //     }
 
-        .emoji-reset-button {
-          padding: 10px 15px;
-          border-radius: 8px;
-          border: 1px solid var(--background-modifier-border);
-          cursor: pointer;
-        }
+    //     .emoji-reset-button {
+    //       padding: 10px 15px;
+    //       border-radius: 8px;
+    //       border: 1px solid var(--background-modifier-border);
+    //       cursor: pointer;
+    //     }
 
-        .category-tab.active-tab,
-        .subcategory-tab.active-tab {
-          background: var(--interactive-accent-hover);
-          color: var(--text-on-accent);
-        }
-      `,
-    });
+    //     .category-tab.active-tab,
+    //     .subcategory-tab.active-tab {
+    //       background: var(--interactive-accent-hover);
+    //       color: var(--text-on-accent);
+    //     }
+    //   `,
+    // });
   }
 
   renderCategoryTabs(categoryTabs: HTMLElement) {

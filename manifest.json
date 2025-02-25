@@ -6,5 +6,6 @@
 	"description": "Improve the pinned tab experience with emoji and customizable reduced size.",
 	"author": "Diego Marzá",
 	"authorUrl": "https://github.com/diegomarzaa",
-	"isDesktopOnly": false
+	"isDesktopOnly": false,
+    "css": "styles.css"
 }
