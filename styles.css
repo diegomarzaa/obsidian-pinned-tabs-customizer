@@ -1,137 +1,151 @@
-/* Estilos estáticos para Pinned Emoji Plugin */
+:root {
+	--pinned-tab-width: 33px;
+	--default-pinned-emoji: "📌";
+	--pinned-emoji-font-size: 1.3em;
+	--pinned-emoji-position: absolute;
+	--pinned-emoji-top: 50%;
+	--pinned-emoji-left: 50%;
+	--pinned-emoji-transform: translate(-50%, -50%);
+}
 
-/* Pinned Tab - partes estáticas */
+/* Estilos estáticos para las pestañas fijadas */
+.workspace-tabs .workspace-tab-header:has(.mod-pinned) {
+	max-width: var(--pinned-tab-width) !important;
+}
+
 .workspace-tabs .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-inner-title {
-    text-overflow: clip !important;
-    visibility: hidden !important;
-    position: relative;
-  }
-  
-  .workspace-tabs .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-status-container {
-    display: none !important;
-  }
-  
-  /* Center the emoji in the tab */
-  .workspace-tabs .workspace-tab-header-inner {
-    padding-inline-end: 8px;
-    padding-inline-start: 8px;
-  }
-  
-  /* Sidebar - partes estáticas */
-  .workspace-split.mod-horizontal .workspace-tab-header {
-    max-width: 48px !important;
-  }
-  .workspace-split.mod-horizontal .workspace-tab-header .workspace-tab-header-status-container {
-    display: flex !important;
-  }
-  
-  /* EmojiPickerModal */
-  .emoji-preview {
-    font-size: 2.5em;
-    text-align: center;
-    margin: 10px 0;
-    border: 1px solid var(--background-modifier-border);
-    padding: 10px;
-    border-radius: 8px;
-  }
-  
-  .emoji-search-input {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  
-  .category-tabs,
-  .subcategory-tabs {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-  }
-  
-  .subcategory-tabs {
-    margin-bottom: 10px;
-  }
-  
-  .emoji-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-    gap: 10px;
-    max-height: 300px;
-    overflow-y: auto;
-    border: 1px solid var(--background-modifier-border);
-    border-radius: 8px;
-    padding: 10px;
-  }
-  
-  .button-container {
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .emoji-card {
-    font-size: 1.5em;
-    border: 1px solid var(--background-modifier-border);
-    border-radius: 8px;
-    text-align: center;
-    padding: 8px;
-    cursor: pointer;
-  }
-  
-  .emoji-card:hover {
-    background: var(--background-modifier-hover);
-  }
-  
-  .emoji-save-button {
-    background: var(--interactive-accent);
-    color: var(--text-on-accent);
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .emoji-save-button:hover {
-    background: var(--interactive-accent-hover);
-  }
-  
-  .emoji-reset-button {
-    padding: 10px 15px;
-    border-radius: 8px;
-    border: 1px solid var(--background-modifier-border);
-    cursor: pointer;
-  }
-  
-  .category-tab.active-tab,
-  .subcategory-tab.active-tab {
-    background: var(--interactive-accent-hover);
-    color: var(--text-on-accent);
-  }
-  
-  /* PinnedEmojiSettingTab */
-  .mapping-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 10px;
-  }
-  .mapping-card {
-    border: 1px solid var(--background-modifier-border);
-    border-radius: 8px;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  .label-input {
-    width: 100%;
-  }
-  .emoji-button,
-  .file-button,
-  .delete-button {
-    padding: 5px;
-    border-radius: 5px;
-  }
-  .delete-button {
-    background: var(--interactive-critical);
-    color: var(--text-on-accent);
-  }
-  
+	text-overflow: clip !important;
+	visibility: hidden !important;
+	position: relative;
+}
+
+.workspace-tabs .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-inner-title::after {
+	visibility: visible !important;
+	position: var(--pinned-emoji-position);
+	top: var(--pinned-emoji-top);
+	left: var(--pinned-emoji-left);
+	transform: var(--pinned-emoji-transform);
+	font-size: var(--pinned-emoji-font-size);
+	line-height: 1;
+	display: block;
+	color: inherit;
+	content: var(--default-pinned-emoji);
+}
+
+/* Sidebar */
+.workspace-split.mod-horizontal .workspace-tab-header {
+	max-width: 48px !important;
+}
+.workspace-split.mod-horizontal .workspace-tab-header .workspace-tab-header-status-container {
+	display: flex !important;
+}
+
+/* Estilos del EmojiPickerModal */
+.emoji-preview {
+	font-size: 2.5em;
+	text-align: center;
+	margin: 10px 0;
+	border: 1px solid var(--background-modifier-border);
+	padding: 10px;
+	border-radius: 8px;
+}
+
+.emoji-search-input {
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+.category-tabs,
+.subcategory-tabs {
+	display: flex;
+	gap: 10px;
+	overflow-x: auto;
+}
+
+.subcategory-tabs {
+	margin-bottom: 10px;
+}
+
+.emoji-container {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+	gap: 10px;
+	max-height: 300px;
+	overflow-y: auto;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	padding: 10px;
+}
+
+.button-container {
+	display: flex;
+	justify-content: space-between;
+}
+
+.emoji-card {
+	font-size: 1.5em;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	text-align: center;
+	padding: 8px;
+	cursor: pointer;
+}
+
+.emoji-card:hover {
+	background: var(--background-modifier-hover);
+}
+
+.emoji-save-button {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	padding: 10px 15px;
+	border-radius: 8px;
+	font-weight: bold;
+	border: none;
+	cursor: pointer;
+}
+
+.emoji-save-button:hover {
+	background: var(--interactive-accent-hover);
+}
+
+.emoji-reset-button {
+	padding: 10px 15px;
+	border-radius: 8px;
+	border: 1px solid var(--background-modifier-border);
+	cursor: pointer;
+}
+
+.category-tab.active-tab,
+.subcategory-tab.active-tab {
+	background: var(--interactive-accent-hover);
+	color: var(--text-on-accent);
+}
+
+/* Estilos para la configuración (PinnedEmojiSettingTab) */
+.mapping-container {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 10px;
+}
+.mapping-card {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+.label-input {
+	width: 100%;
+}
+.emoji-button,
+.file-button,
+.delete-button {
+	padding: 5px;
+	border-radius: 5px;
+}
+.delete-button {
+	background: var(--interactive-critical);
+	color: var(--text-on-accent);
+}
