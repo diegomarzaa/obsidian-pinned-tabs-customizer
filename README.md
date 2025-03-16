@@ -48,22 +48,22 @@ Manage pinned tabs and customize emoji mappings:
 
 1. Install BRAT
 
-- Open Obsidian → Settings → Community Plugins
-- Search for and install BRAT (Beta Reviewers Auto-update Tester)
+    - Open Obsidian → Settings → Community Plugins
+    - Search for and install BRAT (Beta Reviewers Auto-update Tester)
 
 2. Add the Beta Plugin
 
-- Open the Command Palette (Ctrl + P / Cmd + P)
-- Run: BRAT: Add a beta plugin for testing
-- When prompted, paste the repository link: `diegomarzaa/obsidian-pinned-tabs-customizer`
-- Click Add Plugin and wait for BRAT to confirm installation.
+    - Open the Command Palette (Ctrl + P / Cmd + P)
+    - Run: BRAT: Add a beta plugin for testing
+    - When prompted, paste the repository link: `diegomarzaa/obsidian-pinned-tabs-customizer`
+    - Click Add Plugin and wait for BRAT to confirm installation.
 
 
 3. Enable the Plugin
 
-- Go to Settings → Community Plugins
-- Refresh the list of plugins
-- Find Pinned Tab Emoji Customizer (Beta) and enable it
+    - Go to Settings → Community Plugins
+    - Refresh the list of plugins
+    - Find Pinned Tab Emoji Customizer (Beta) and enable it
 
 ## 🛠️ How to Use
 
