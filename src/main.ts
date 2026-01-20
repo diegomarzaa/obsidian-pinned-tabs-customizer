@@ -1,4 +1,4 @@
-import {Plugin, TFile} from 'obsidian';
+import {Menu, Modal, Plugin, Setting, TAbstractFile, TFile} from 'obsidian';
 import {DEFAULT_SETTINGS, PinnedTabsCustomizerSettings, PinnedTabsCustomizerSettingTab} from "./settings";
 
 export default class PinnedTabsCustomizerPlugin extends Plugin {
@@ -29,6 +29,38 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 
 		// Add settings tab
 		this.addSettingTab(new PinnedTabsCustomizerSettingTab(this.app, this));
+
+		// Add command to set icon for current file
+		this.addCommand({
+			id: 'set-pinned-tab-icon',
+			name: 'Set pinned tab icon for current file',
+			checkCallback: (checking: boolean) => {
+				const file = this.app.workspace.getActiveFile();
+				if (file) {
+					if (!checking) {
+						this.openIconModal(file);
+					}
+					return true;
+				}
+				return false;
+			}
+		});
+
+		// Add right-click context menu on files
+		this.registerEvent(
+			this.app.workspace.on('file-menu', (menu: Menu, file: TAbstractFile) => {
+				if (file instanceof TFile) {
+					menu.addItem((item) => {
+						item
+							.setTitle('Set pinned tab icon')
+							.setIcon('pin')
+							.onClick(() => {
+								this.openIconModal(file);
+							});
+					});
+				}
+			})
+		);
 	}
 
 	onunload() {
@@ -104,17 +136,64 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 	}
 
 	/**
-	 * Resolve the icon for a pinned tab (priority: frontmatter > default)
+	 * Get icon from mappings for a file
 	 */
-	resolveIconForTab(tabEl: HTMLElement): string | null {
-		// Try frontmatter first
-		const file = this.getFileFromTab(tabEl);
-		if (file) {
-			const frontmatterIcon = this.getIconFromFrontmatter(file);
-			if (frontmatterIcon) return frontmatterIcon;
+	getIconFromMappings(file: TFile): string | null {
+		const fileName = file.basename;
+		const filePath = file.path;
+
+		for (const mapping of this.settings.iconMappings) {
+			if (!mapping.match || !mapping.icon) continue;
+
+			switch (mapping.type) {
+				case 'exact':
+					// Match file name exactly (without extension)
+					if (fileName === mapping.match) {
+						return mapping.icon;
+					}
+					break;
+
+				case 'folder':
+					// Match path prefix (folder)
+					if (filePath.startsWith(mapping.match)) {
+						return mapping.icon;
+					}
+					break;
+
+				case 'regex':
+					// Match file name against regex pattern
+					try {
+						const regex = new RegExp(mapping.match);
+						if (regex.test(fileName)) {
+							return mapping.icon;
+						}
+					} catch {
+						// Invalid regex, skip
+					}
+					break;
+			}
 		}
 
-		// Fall back to default icon (if enabled)
+		return null;
+	}
+
+	/**
+	 * Resolve the icon for a pinned tab (priority: frontmatter > mappings > default)
+	 */
+	resolveIconForTab(tabEl: HTMLElement): string | null {
+		const file = this.getFileFromTab(tabEl);
+		
+		if (file) {
+			// Priority 1: Frontmatter
+			const frontmatterIcon = this.getIconFromFrontmatter(file);
+			if (frontmatterIcon) return frontmatterIcon;
+
+			// Priority 2: Mappings
+			const mappingIcon = this.getIconFromMappings(file);
+			if (mappingIcon) return mappingIcon;
+		}
+
+		// Priority 3: Default icon (if enabled)
 		if (this.settings.showDefaultIcon) {
 			return this.settings.defaultIcon || '📌';
 		}
@@ -190,11 +269,118 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 		});
 	}
 
+	/**
+	 * Open modal to set icon for a file
+	 */
+	openIconModal(file: TFile) {
+		new SetIconModal(this.app, this, file).open();
+	}
+
+	/**
+	 * Add or update an exact mapping for a file
+	 */
+	async setIconMapping(fileName: string, icon: string) {
+		// Check if mapping already exists
+		const existingIndex = this.settings.iconMappings.findIndex(
+			m => m.type === 'exact' && m.match === fileName
+		);
+
+		if (icon) {
+			const existingMapping = existingIndex >= 0 ? this.settings.iconMappings[existingIndex] : null;
+			if (existingMapping) {
+				// Update existing
+				existingMapping.icon = icon;
+			} else {
+				// Add new at the beginning (highest priority among mappings)
+				this.settings.iconMappings.unshift({
+					type: 'exact',
+					match: fileName,
+					icon: icon
+				});
+			}
+		} else {
+			// Remove mapping if icon is empty
+			if (existingIndex >= 0) {
+				this.settings.iconMappings.splice(existingIndex, 1);
+			}
+		}
+
+		await this.saveSettings();
+		this.updateStyles();
+	}
+
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<PinnedTabsCustomizerSettings>);
 	}
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+	}
+}
+
+/**
+ * Modal for setting a pinned tab icon
+ */
+class SetIconModal extends Modal {
+	plugin: PinnedTabsCustomizerPlugin;
+	file: TFile;
+	iconValue: string = '';
+
+	constructor(app: import('obsidian').App, plugin: PinnedTabsCustomizerPlugin, file: TFile) {
+		super(app);
+		this.plugin = plugin;
+		this.file = file;
+
+		// Pre-fill with existing mapping if any
+		const existing = plugin.settings.iconMappings.find(
+			m => m.type === 'exact' && m.match === file.basename
+		);
+		if (existing) {
+			this.iconValue = existing.icon;
+		}
+	}
+
+	onOpen() {
+		const { contentEl } = this;
+		contentEl.empty();
+
+		contentEl.createEl('h2', { text: 'Set pinned tab icon' });
+		contentEl.createEl('p', { 
+			text: `File: ${this.file.basename}`,
+			cls: 'setting-item-description'
+		});
+
+		new Setting(contentEl)
+			.setName('Icon')
+			.setDesc('Enter an emoji, symbol, or short text. Leave empty to remove.')
+			.addText(text => {
+				text
+					.setPlaceholder('📌')
+					.setValue(this.iconValue)
+					.onChange(value => {
+						this.iconValue = value;
+					});
+				// Focus the input
+				text.inputEl.focus();
+			});
+
+		new Setting(contentEl)
+			.addButton(btn => btn
+				.setButtonText('Save')
+				.setCta()
+				.onClick(async () => {
+					await this.plugin.setIconMapping(this.file.basename, this.iconValue);
+					this.close();
+				}))
+			.addButton(btn => btn
+				.setButtonText('Cancel')
+				.onClick(() => {
+					this.close();
+				}));
+	}
+
+	onClose() {
+		const { contentEl } = this;
+		contentEl.empty();
 	}
 }

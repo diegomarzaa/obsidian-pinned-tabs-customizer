@@ -27,7 +27,7 @@ export const DEFAULT_SETTINGS: PinnedTabsCustomizerSettings = {
 	// Appearance
 	shrinkPinnedTabs: false,
 	pinnedTabWidth: 40,
-	showDefaultIcon: false,
+	showDefaultIcon: true,
 	defaultIcon: '📌',
 
 	// Frontmatter
@@ -67,7 +67,6 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 					this.plugin.settings.shrinkPinnedTabs = value;
 					await this.plugin.saveSettings();
 					this.plugin.updateStyles();
-					// Re-render to show/hide nested settings
 					this.display();
 				}));
 
@@ -129,7 +128,7 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 		}
 
 		// ═══════════════════════════════════════════════════════════
-		// ICON SOURCES SECTION (placeholder for Phase 3)
+		// ICON SOURCES SECTION
 		// ═══════════════════════════════════════════════════════════
 		new Setting(containerEl)
 			.setName('Icon sources')
@@ -162,19 +161,126 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 		}
 
 		// ═══════════════════════════════════════════════════════════
-		// ICON MAPPINGS SECTION (placeholder for Phase 4)
+		// ICON MAPPINGS SECTION
 		// ═══════════════════════════════════════════════════════════
 		new Setting(containerEl)
 			.setName('Icon mappings')
 			.setHeading();
 
 		new Setting(containerEl)
-			.setDesc('First match wins. Right-click on files adds exact mappings here.');
+			.setDesc('First match wins. Types: exact (file name), folder (path prefix), regex (pattern).');
 
-		// Placeholder message for now
-		if (this.plugin.settings.iconMappings.length === 0) {
-			new Setting(containerEl)
-				.setDesc('No mappings configured yet.');
-		}
+		// Add new mapping button
+		new Setting(containerEl)
+			.addButton(button => button
+				.setButtonText('Add mapping')
+				.setCta()
+				.onClick(async () => {
+					this.plugin.settings.iconMappings.push({
+						type: 'exact',
+						match: '',
+						icon: '📌'
+					});
+					await this.plugin.saveSettings();
+					this.display();
+				}));
+
+		// Render existing mappings
+		this.plugin.settings.iconMappings.forEach((mapping, index) => {
+			this.renderMappingItem(containerEl, mapping, index);
+		});
+	}
+
+	/**
+	 * Render a single mapping item
+	 */
+	renderMappingItem(containerEl: HTMLElement, mapping: IconMapping, index: number): void {
+		const setting = new Setting(containerEl)
+			.setClass('mapping-item');
+
+		// Move up button
+		setting.addExtraButton(button => button
+			.setIcon('arrow-up')
+			.setTooltip('Move up')
+			.setDisabled(index === 0)
+			.onClick(async () => {
+				if (index > 0) {
+					const mappings = this.plugin.settings.iconMappings;
+					const current = mappings[index];
+					const prev = mappings[index - 1];
+					if (current && prev) {
+						mappings[index - 1] = current;
+						mappings[index] = prev;
+					}
+					await this.plugin.saveSettings();
+					this.plugin.updateStyles();
+					this.display();
+				}
+			}));
+
+		// Move down button
+		setting.addExtraButton(button => button
+			.setIcon('arrow-down')
+			.setTooltip('Move down')
+			.setDisabled(index === this.plugin.settings.iconMappings.length - 1)
+			.onClick(async () => {
+				const mappings = this.plugin.settings.iconMappings;
+				if (index < mappings.length - 1) {
+					const current = mappings[index];
+					const next = mappings[index + 1];
+					if (current && next) {
+						mappings[index + 1] = current;
+						mappings[index] = next;
+					}
+					await this.plugin.saveSettings();
+					this.plugin.updateStyles();
+					this.display();
+				}
+			}));
+
+		// Type dropdown
+		setting.addDropdown(dropdown => dropdown
+			.addOption('exact', 'Exact')
+			.addOption('folder', 'Folder')
+			.addOption('regex', 'Regex')
+			.setValue(mapping.type)
+			.onChange(async (value) => {
+				mapping.type = value as IconMapping['type'];
+				await this.plugin.saveSettings();
+				this.plugin.updateStyles();
+			}));
+
+		// Match input
+		setting.addText(text => text
+			.setPlaceholder(mapping.type === 'folder' ? 'Projects/' : mapping.type === 'regex' ? '^\\d{4}-\\d{2}-\\d{2}$' : 'Home')
+			.setValue(mapping.match)
+			.onChange(async (value) => {
+				mapping.match = value;
+				await this.plugin.saveSettings();
+				this.plugin.updateStyles();
+			}));
+
+		// Icon input
+		setting.addText(text => {
+			text.inputEl.addClass('mapping-icon-input');
+			text.setPlaceholder('📌')
+				.setValue(mapping.icon)
+				.onChange(async (value) => {
+					mapping.icon = value;
+					await this.plugin.saveSettings();
+					this.plugin.updateStyles();
+				});
+		});
+
+		// Delete button
+		setting.addExtraButton(button => button
+			.setIcon('trash')
+			.setTooltip('Delete mapping')
+			.onClick(async () => {
+				this.plugin.settings.iconMappings.splice(index, 1);
+				await this.plugin.saveSettings();
+				this.plugin.updateStyles();
+				this.display();
+			}));
 	}
 }

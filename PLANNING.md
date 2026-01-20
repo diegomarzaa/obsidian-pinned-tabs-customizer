@@ -163,17 +163,21 @@ interface IconMapping {
 - [x] Read icon from file frontmatter when tab is pinned
 - [x] Update display when frontmatter changes (via metadataCache event)
 
-### Phase 4: Icon Mappings UI
-- [ ] Create mapping list UI in settings
-- [ ] Add/edit/delete mappings
-- [ ] Drag-to-reorder functionality
-- [ ] Exact/folder/regex matching logic
+### Phase 4: Icon Mappings UI ✅ COMPLETE
+- [x] Create mapping list UI in settings
+- [x] Add/edit/delete mappings
+- [x] Move up/down buttons for reordering
+- [x] Exact/folder/regex matching logic
 
-### Phase 5: Right-Click & Commands
-- [ ] Add context menu item to all files
-- [ ] Create icon input modal (or inline prompt)
-- [ ] Add "Exact" mapping to settings when used
-- [ ] Add command palette action for current file
+**Future improvements (TODO):**
+- [ ] Improve visual design of mapping items
+- [ ] Add autocomplete for folder/file picking (native Obsidian suggest)
+
+### Phase 5: Right-Click & Commands ✅ COMPLETE
+- [x] Add context menu item to all files
+- [x] Create icon input modal
+- [x] Add "Exact" mapping to settings when used
+- [x] Add command palette action for current file
 
 ---
 
@@ -207,6 +211,8 @@ Need to:
 
 ---
 
-## All Questions Resolved ✅
+## Status: All Phases Complete ✅
 
-Ready to implement Phase 1!
+**Remaining polish items:**
+- [ ] Improve visual design of icon mapping settings
+- [ ] Add autocomplete for folder/file picking in mappings
