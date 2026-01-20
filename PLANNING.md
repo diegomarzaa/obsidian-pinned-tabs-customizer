@@ -4,14 +4,15 @@
 
 | Question | Decision |
 |----------|----------|
-| Display when shrunk | Emoji if assigned, otherwise file icon. Default emoji fills in for unassigned files (if enabled) |
-| Emojis when NOT shrunk | No — only visible when shrunk |
+| Display when shrunk | Icon if assigned, otherwise file icon. Default icon fills in for unassigned files (if enabled) |
+| Icons when NOT shrunk | No — only visible when shrunk |
 | Width range | 40–120px |
 | Folder matching | Includes subfolders (user picks specific path to narrow scope) |
 | Regex/Exact scope | Matches file NAME only (not path), across entire vault |
-| Right-click saves to | Plugin data, stored by **file name** (not path) — survives file moves |
+| Right-click action | Adds "Exact" mapping to settings list (editable in settings) |
 | Right-click menu on | All files |
 | Nested settings | Yes — show/hide based on parent toggle |
+| Icon field content | Any text — emojis, symbols, letters, anything |
 
 ---
 
@@ -22,52 +23,49 @@
 - **Default:** OFF — pinned tabs look completely normal
 - **When ON:** Pinned tabs shrink to configurable width (40–120px)
 - Shrunk tab shows:
-  1. Custom emoji (if assigned via any method)
-  2. Default emoji (if "show default emoji" is ON and no custom emoji)
+  1. Custom icon (if assigned via frontmatter or mapping)
+  2. Default icon (if "show default icon" is ON and no custom icon)
   3. File icon (fallback)
 
-### 2. Default Emoji
+### 2. Default Icon
 
 - Only visible when "Shrink pinned tabs" is ON
-- **Toggle:** Show default emoji on all pinned tabs
-- **Picker:** Choose the default emoji (e.g., 📌)
-- Only applies to files WITHOUT a custom emoji assigned
+- **Toggle:** Show default icon on all pinned tabs
+- **Input:** Any text — emoji, symbol, letters (e.g., 📌 or "P" or ⚡)
+- Only applies to files WITHOUT a custom icon assigned
 
-### 3. Emoji Assignment Priority
+### 3. Icon Assignment Priority
 
 ```
-1. Frontmatter      →  pinned-emoji: 🏠     (highest priority)
-2. Emoji Mappings   →  Settings rules        (first match wins)
-3. Right-click      →  Plugin data by NAME   (lowest priority)
+1. Frontmatter      →  pinned-icon: 🏠      (highest priority)
+2. Mappings         →  Settings rules        (first match wins)
 ```
 
-#### Frontmatter
+**Note:** The icon field accepts ANY text — emojis, symbols, letters, etc.
+
+#### Frontmatter (Priority 1)
 ```yaml
 ---
-pinned-emoji: 🏠
+pinned-icon: 🏠
 ---
 ```
-- Property name customizable (default: `pinned-emoji`)
-- Empty value = no emoji (falls through to next priority)
+- Property name customizable (default: `pinned-icon`)
+- Empty value = no icon (falls through to mappings)
 
-#### Emoji Mappings (Settings)
+#### Mappings (Priority 2)
+
+All mappings live in the same settings list. Right-click adds an "Exact" entry here.
+
 | Type | Match Against | Example |
 |------|---------------|---------|
 | Exact | File name (without .md) | `Home` → 🏠 |
 | Folder | Full path prefix | `Projects/` → 📁 (includes subfolders) |
 | Regex | File name (without .md) | `^\d{4}-\d{2}-\d{2}$` → 📅 |
 
-- Ordered list — first match wins
+- Ordered list — **first match wins**
 - User can reorder via drag-and-drop
-
-#### Right-Click Assignment
-- Stored in plugin data by **file name only**
-- Example: `"Home": "🏠"` (not `"Projects/Home.md": "🏠"`)
-- Survives file moves/renames... wait, if stored by name:
-  - ✅ Survives moving to different folder
-  - ❌ Lost if file is renamed
-
-**Note:** Should we store by name or offer both? Or is name-only the intended behavior?
+- Right-click on file → adds "Exact" mapping → editable in settings
+- If file is renamed, the exact mapping no longer matches (expected behavior)
 
 ---
 
@@ -82,30 +80,31 @@ pinned-emoji: 🏠
 │ │                                                      ││
 │ │ [○] Shrink all pinned tabs                          ││
 │ │     ↳ Width  [====●======] 60px                     ││
-│ │     ↳ [○] Show default emoji                        ││
-│ │           ↳ Emoji [📌] ← picker                     ││
+│ │     ↳ [○] Show default icon                         ││
+│ │           ↳ Icon [📌     ] ← text input             ││
 │ │                                                      ││
 │ └──────────────────────────────────────────────────────┘│
 │                                                         │
-│ ┌─ Emoji Sources ──────────────────────────────────────┐│
+│ ┌─ Icon Sources ───────────────────────────────────────┐│
 │ │                                                      ││
-│ │ [●] Read emoji from frontmatter                     ││
-│ │     ↳ Property name [pinned-emoji    ]              ││
+│ │ [●] Read icon from frontmatter                      ││
+│ │     ↳ Property name [pinned-icon     ]              ││
 │ │                                                      ││
 │ └──────────────────────────────────────────────────────┘│
 │                                                         │
-│ ┌─ Emoji Mappings ─────────────────────────────────────┐│
+│ ┌─ Icon Mappings ──────────────────────────────────────┐│
 │ │                                                      ││
 │ │ First match wins. Drag to reorder.                  ││
+│ │ Right-click on files adds "Exact" mappings here.    ││
 │ │                                                      ││
 │ │ ┌────────────────────────────────────────────┐      ││
-│ │ │ ≡  Exact   [Home          ] → [🏠]    [🗑] │      ││
+│ │ │ ≡  Exact   [Home          ] → [🏠  ]  [🗑] │      ││
 │ │ └────────────────────────────────────────────┘      ││
 │ │ ┌────────────────────────────────────────────┐      ││
-│ │ │ ≡  Folder  [Projects/     ] → [📁]    [🗑] │      ││
+│ │ │ ≡  Folder  [Projects/     ] → [📁  ]  [🗑] │      ││
 │ │ └────────────────────────────────────────────┘      ││
 │ │ ┌────────────────────────────────────────────┐      ││
-│ │ │ ≡  Regex   [^\d{4}-\d{2}  ] → [📅]    [🗑] │      ││
+│ │ │ ≡  Regex   [^\d{4}-\d{2}  ] → [📅  ]  [🗑] │      ││
 │ │ └────────────────────────────────────────────┘      ││
 │ │                                                      ││
 │ │ [+ Add mapping]                                      ││
@@ -124,24 +123,21 @@ interface PinnedTabsCustomizerSettings {
   // Appearance
   shrinkPinnedTabs: boolean;        // default: false
   pinnedTabWidth: number;           // default: 40, range: 40-120
-  showDefaultEmoji: boolean;        // default: false
-  defaultEmoji: string;             // default: "📌"
+  showDefaultIcon: boolean;         // default: false
+  defaultIcon: string;              // default: "📌"
   
   // Frontmatter
   enableFrontmatter: boolean;       // default: true
-  frontmatterProperty: string;      // default: "pinned-emoji"
+  frontmatterProperty: string;      // default: "pinned-icon"
   
-  // Mappings
-  emojiMappings: EmojiMapping[];    // default: []
-  
-  // Right-click assignments (by file name)
-  fileEmojis: Record<string, string>;  // e.g., { "Home": "🏠" }
+  // Mappings (includes right-click additions)
+  iconMappings: IconMapping[];      // default: []
 }
 
-interface EmojiMapping {
+interface IconMapping {
   type: 'exact' | 'folder' | 'regex';
   match: string;
-  emoji: string;
+  icon: string;  // any text: emoji, symbol, letters, etc.
 }
 ```
 
@@ -149,23 +145,23 @@ interface EmojiMapping {
 
 ## Implementation Phases
 
-### Phase 1: Core Settings Refactor ← START HERE
-- [ ] Update settings interface with all fields
-- [ ] Add "Shrink pinned tabs" toggle (default OFF)
-- [ ] Nested slider (only shows when shrink is ON)
-- [ ] Make CSS apply only when shrink is ON
+### Phase 1: Core Settings Refactor ✅ COMPLETE
+- [x] Update settings interface with all fields
+- [x] Add "Shrink pinned tabs" toggle (default OFF)
+- [x] Nested slider (only shows when shrink is ON)
+- [x] Make CSS apply only when shrink is ON (via `body.pinned-tabs-shrink` class)
 
-### Phase 2: Default Emoji
-- [ ] Add "Show default emoji" toggle (nested under shrink)
-- [ ] Add emoji picker for default emoji
-- [ ] Display default emoji in shrunk tabs (when no custom emoji)
+### Phase 2: Default Icon
+- [ ] Add "Show default icon" toggle (nested under shrink)
+- [ ] Add text input for default icon
+- [ ] Display default icon in shrunk tabs (when no custom icon)
 
 ### Phase 3: Frontmatter Support
 - [ ] Add frontmatter toggle + property name setting
-- [ ] Read emoji from file frontmatter when tab is pinned
+- [ ] Read icon from file frontmatter when tab is pinned
 - [ ] Update display when frontmatter changes
 
-### Phase 4: Emoji Mappings UI
+### Phase 4: Icon Mappings UI
 - [ ] Create mapping list UI in settings
 - [ ] Add/edit/delete mappings
 - [ ] Drag-to-reorder functionality
@@ -173,9 +169,9 @@ interface EmojiMapping {
 
 ### Phase 5: Right-Click & Commands
 - [ ] Add context menu item to all files
-- [ ] Create emoji picker modal
-- [ ] Store emoji by file name in plugin data
-- [ ] Add command palette action
+- [ ] Create icon input modal (or inline prompt)
+- [ ] Add "Exact" mapping to settings when used
+- [ ] Add command palette action for current file
 
 ---
 
@@ -209,12 +205,6 @@ Need to:
 
 ---
 
-## Questions Remaining
+## All Questions Resolved ✅
 
-1. **Right-click by name:** If file `Home.md` is renamed to `Dashboard.md`, the emoji is lost. Is this acceptable? Or should we also store by path as backup?
-
----
-
-## Ready to Start?
-
-Phase 1 is ready to implement. Shall I begin with the settings refactor?
+Ready to implement Phase 1!
