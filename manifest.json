@@ -1,0 +1,9 @@
+{
+	"id": "pinned-tabs-customizer",
+	"name": "Pinned Tabs Customizer",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Customize the appearance and behavior of pinned tabs in Obsidian.",
+	"author": "Diego",
+	"isDesktopOnly": false
+}
