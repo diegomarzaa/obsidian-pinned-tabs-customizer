@@ -2,11 +2,11 @@ import {App, PluginSettingTab, Setting} from "obsidian";
 import PinnedTabsCustomizerPlugin from "./main";
 
 export interface PinnedTabsCustomizerSettings {
-	mySetting: string;
+	pinnedTabSize: number;
 }
 
 export const DEFAULT_SETTINGS: PinnedTabsCustomizerSettings = {
-	mySetting: 'default'
+	pinnedTabSize: 40
 }
 
 export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
@@ -23,14 +23,16 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Settings #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
+			.setName('Pinned tab size')
+			.setDesc('Width of pinned tabs in pixels')
+			.addSlider(slider => slider
+				.setLimits(40, 120, 4)
+				.setValue(this.plugin.settings.pinnedTabSize)
+				.setDynamicTooltip()
 				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
+					this.plugin.settings.pinnedTabSize = value;
 					await this.plugin.saveSettings();
+					this.plugin.updateStyles();
 				}));
 	}
 }

@@ -1,4 +1,4 @@
-import {App, Editor, MarkdownView, Modal, Notice, Plugin} from 'obsidian';
+import {Plugin} from 'obsidian';
 import {DEFAULT_SETTINGS, PinnedTabsCustomizerSettings, PinnedTabsCustomizerSettingTab} from "./settings";
 
 export default class PinnedTabsCustomizerPlugin extends Plugin {
@@ -7,45 +7,20 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		// This creates an icon in the left ribbon.
-		this.addRibbonIcon('pin', 'Pinned tabs customizer', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('Pinned tabs customizer is active!');
-		});
+		// Apply initial styles
+		this.updateStyles();
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Pinned tabs customizer');
-
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-settings',
-			name: 'Open settings',
-			callback: () => {
-				new PinnedTabsCustomizerModal(this.app).open();
-			}
-		});
-
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'pin-current-tab',
-			name: 'Pin current tab',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				new Notice('Tab pinned!');
-			}
-		});
-
-		// This adds a settings tab so the user can configure various aspects of the plugin
+		// Add settings tab
 		this.addSettingTab(new PinnedTabsCustomizerSettingTab(this.app, this));
-
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			// Handle click events if needed
-		});
 	}
 
 	onunload() {
+		// Clean up CSS variable
+		document.body.style.removeProperty('--pinned-tab-size');
+	}
+
+	updateStyles() {
+		document.body.style.setProperty('--pinned-tab-size', `${this.settings.pinnedTabSize}px`);
 	}
 
 	async loadSettings() {
@@ -54,21 +29,5 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-	}
-}
-
-class PinnedTabsCustomizerModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Pinned tabs customizer settings');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
 	}
 }

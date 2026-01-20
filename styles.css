@@ -1,8 +1,18 @@
 /*
+ * Pinned Tabs Customizer
+ * Uses --pinned-tab-size CSS variable set by the plugin
+ */
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.workspace-tab-header:has(.mod-pinned) {
+    --tab-max-width: var(--pinned-tab-size, 40px);
+    --tab-width: var(--pinned-tab-size, 40px);
+    justify-content: center;
+}
 
-If your plugin does not need CSS, delete this file.
+.workspace-tab-header:has(.mod-pinned) .workspace-tab-header-inner-title {
+    display: none;
+}
 
-*/
+.workspace-tab-header:has(.mod-pinned) .workspace-tab-header-status-container {
+    display: none;
+}
