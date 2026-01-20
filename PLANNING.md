@@ -151,10 +151,12 @@ interface IconMapping {
 - [x] Nested slider (only shows when shrink is ON)
 - [x] Make CSS apply only when shrink is ON (via `body.pinned-tabs-shrink` class)
 
-### Phase 2: Default Icon
-- [ ] Add "Show default icon" toggle (nested under shrink)
-- [ ] Add text input for default icon
-- [ ] Display default icon in shrunk tabs (when no custom icon)
+### Phase 2: Default Icon ✅ COMPLETE
+- [x] Add "Show default icon" toggle (nested under shrink)
+- [x] Add text input for default icon
+- [x] Display default icon in shrunk tabs (when no custom icon)
+- [x] Added reset button for width slider
+- [x] Increased max width to 200px
 
 ### Phase 3: Frontmatter Support
 - [ ] Add frontmatter toggle + property name setting

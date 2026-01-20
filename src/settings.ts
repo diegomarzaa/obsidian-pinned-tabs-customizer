@@ -73,19 +73,28 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 
 		// Nested settings (only show when shrink is ON)
 		if (this.plugin.settings.shrinkPinnedTabs) {
-			// Width slider
+			// Width slider with reset button
 			new Setting(containerEl)
 				.setName('Pinned tab width')
-				.setDesc('Width of shrunk pinned tabs in pixels')
+				.setDesc('Width of shrunk pinned tabs in pixels (40 = icon only, 200 = normal)')
 				.setClass('setting-indent')
 				.addSlider(slider => slider
-					.setLimits(40, 120, 4)
+					.setLimits(40, 200, 4)
 					.setValue(this.plugin.settings.pinnedTabWidth)
 					.setDynamicTooltip()
 					.onChange(async (value) => {
 						this.plugin.settings.pinnedTabWidth = value;
 						await this.plugin.saveSettings();
 						this.plugin.updateStyles();
+					}))
+				.addExtraButton(button => button
+					.setIcon('reset')
+					.setTooltip('Reset to default (40px)')
+					.onClick(async () => {
+						this.plugin.settings.pinnedTabWidth = DEFAULT_SETTINGS.pinnedTabWidth;
+						await this.plugin.saveSettings();
+						this.plugin.updateStyles();
+						this.display();
 					}));
 
 			// Show default icon toggle

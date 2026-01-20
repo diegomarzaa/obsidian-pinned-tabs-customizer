@@ -31,3 +31,21 @@ body.pinned-tabs-shrink .workspace-tab-header:has(.mod-pinned) .workspace-tab-he
 body.pinned-tabs-shrink .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-status-container {
     display: none;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   CUSTOM ICON STYLES
+   ═══════════════════════════════════════════════════════════ */
+
+/* Hide original icon when tab has custom icon */
+.workspace-tab-header.has-custom-icon .workspace-tab-header-inner-icon {
+    display: none !important;
+}
+
+/* Style the custom icon */
+.pinned-tab-custom-icon {
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
