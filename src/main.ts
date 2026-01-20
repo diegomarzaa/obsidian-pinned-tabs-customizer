@@ -1,4 +1,4 @@
-import {Plugin} from 'obsidian';
+import {Plugin, TFile} from 'obsidian';
 import {DEFAULT_SETTINGS, PinnedTabsCustomizerSettings, PinnedTabsCustomizerSettingTab} from "./settings";
 
 export default class PinnedTabsCustomizerPlugin extends Plugin {
@@ -13,6 +13,13 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 		// Watch for workspace changes to update pinned tab icons
 		this.registerEvent(
 			this.app.workspace.on('layout-change', () => {
+				this.updatePinnedTabIcons();
+			})
+		);
+
+		// Watch for metadata changes (frontmatter updates)
+		this.registerEvent(
+			this.app.metadataCache.on('changed', () => {
 				this.updatePinnedTabIcons();
 			})
 		);
@@ -69,6 +76,53 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 	}
 
 	/**
+	 * Get the file associated with a tab element
+	 */
+	getFileFromTab(tabEl: HTMLElement): TFile | null {
+		// Get file name from aria-label attribute
+		const fileName = tabEl.getAttribute('aria-label');
+		if (!fileName) return null;
+
+		// Find the file in the vault
+		const files = this.app.vault.getMarkdownFiles();
+		return files.find(f => f.basename === fileName) || null;
+	}
+
+	/**
+	 * Get icon from frontmatter for a file
+	 */
+	getIconFromFrontmatter(file: TFile): string | null {
+		if (!this.settings.enableFrontmatter) return null;
+
+		const cache = this.app.metadataCache.getFileCache(file);
+		const frontmatter = cache?.frontmatter;
+		
+		if (!frontmatter) return null;
+
+		const icon = frontmatter[this.settings.frontmatterProperty] as string | undefined;
+		return icon ? String(icon) : null;
+	}
+
+	/**
+	 * Resolve the icon for a pinned tab (priority: frontmatter > default)
+	 */
+	resolveIconForTab(tabEl: HTMLElement): string | null {
+		// Try frontmatter first
+		const file = this.getFileFromTab(tabEl);
+		if (file) {
+			const frontmatterIcon = this.getIconFromFrontmatter(file);
+			if (frontmatterIcon) return frontmatterIcon;
+		}
+
+		// Fall back to default icon (if enabled)
+		if (this.settings.showDefaultIcon) {
+			return this.settings.defaultIcon || '📌';
+		}
+
+		return null;
+	}
+
+	/**
 	 * Update the icon for a single pinned tab
 	 */
 	updateTabIcon(tabEl: HTMLElement) {
@@ -76,10 +130,16 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 		const innerContainer = tabEl.querySelector('.workspace-tab-header-inner');
 		if (!innerContainer) return;
 
-		// Should we show a custom icon?
-		const shouldShowIcon = this.settings.shrinkPinnedTabs && this.settings.showDefaultIcon && this.settings.defaultIcon;
+		// Only show icons when shrink is enabled
+		if (!this.settings.shrinkPinnedTabs) {
+			this.clearTabIcon(tabEl);
+			return;
+		}
 
-		if (shouldShowIcon) {
+		// Resolve the icon for this tab
+		const icon = this.resolveIconForTab(tabEl);
+
+		if (icon) {
 			// Check if we already have a custom icon element
 			let customIcon = tabEl.querySelector('.pinned-tab-custom-icon') as HTMLElement;
 			
@@ -92,7 +152,7 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 			}
 
 			// Update the icon content
-			customIcon.textContent = this.settings.defaultIcon;
+			customIcon.textContent = icon;
 			
 			// Add class to the tab to hide the original icon
 			tabEl.classList.add('has-custom-icon');

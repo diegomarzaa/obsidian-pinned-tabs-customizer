@@ -158,10 +158,10 @@ interface IconMapping {
 - [x] Added reset button for width slider
 - [x] Increased max width to 200px
 
-### Phase 3: Frontmatter Support
-- [ ] Add frontmatter toggle + property name setting
-- [ ] Read icon from file frontmatter when tab is pinned
-- [ ] Update display when frontmatter changes
+### Phase 3: Frontmatter Support ✅ COMPLETE
+- [x] Add frontmatter toggle + property name setting
+- [x] Read icon from file frontmatter when tab is pinned
+- [x] Update display when frontmatter changes (via metadataCache event)
 
 ### Phase 4: Icon Mappings UI
 - [ ] Create mapping list UI in settings

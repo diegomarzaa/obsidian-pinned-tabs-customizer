@@ -48,4 +48,6 @@ body.pinned-tabs-shrink .workspace-tab-header:has(.mod-pinned) .workspace-tab-he
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    width: 100%;
+    text-align: center;
 }

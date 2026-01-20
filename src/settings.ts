@@ -143,6 +143,7 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.enableFrontmatter = value;
 					await this.plugin.saveSettings();
+					this.plugin.updateStyles();
 					this.display();
 				}));
 
@@ -156,6 +157,7 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.frontmatterProperty = value || 'pinned-icon';
 						await this.plugin.saveSettings();
+						this.plugin.updateStyles();
 					}));
 		}
 
