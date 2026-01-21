@@ -2,8 +2,8 @@
 	"id": "pinned-tabs-customizer",
 	"name": "Pinned Tabs Customizer",
 	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
-	"description": "Customize the appearance and behavior of pinned tabs in Obsidian.",
+	"minAppVersion": "1.4.0",
+	"description": "Resize pinned tabs and customize their icons with emojis, symbols, or Obsidian icons based on file names, folders, patterns, or tags.",
 	"author": "Diego",
-	"isDesktopOnly": false
+	"isDesktopOnly": true
 }
