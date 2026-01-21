@@ -223,7 +223,7 @@ export const DEFAULT_SETTINGS: PinnedTabsCustomizerSettings = {
 	shrinkPinnedTabs: false,
 	pinnedTabWidth: 40,
 	showDefaultIcon: true,
-	defaultIcon: '📌',
+	defaultIcon: '', // Empty = native Obsidian pin icon
 	enableFrontmatter: true,
 	frontmatterProperty: 'pinned-icon',
 	iconMappings: []
@@ -305,10 +305,10 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 			if (this.plugin.settings.showDefaultIcon) {
 				new Setting(containerEl)
 					.setName('Default icon')
-					.setDesc('Icon for tabs without a mapping')
+					.setDesc('Leave empty to use the native Obsidian pin icon')
 					.setClass('setting-indent-2')
 					.addText(text => text
-						.setPlaceholder('📌')
+						.setPlaceholder('Native pin icon')
 						.setValue(this.plugin.settings.defaultIcon)
 						.onChange(async (value) => {
 							this.plugin.settings.defaultIcon = value;

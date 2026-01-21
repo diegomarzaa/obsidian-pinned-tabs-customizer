@@ -244,8 +244,12 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 		return null;
 	}
 
+	// Special marker for using native Obsidian pin icon
+	static readonly NATIVE_PIN_ICON = '__native_pin__';
+
 	/**
 	 * Resolve the icon for a pinned tab (priority: frontmatter > mappings > default)
+	 * Returns NATIVE_PIN_ICON marker if native pin should be used
 	 */
 	resolveIconForTab(tabEl: HTMLElement): string | null {
 		const file = this.getFileFromTab(tabEl);
@@ -262,7 +266,8 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 
 		// Priority 3: Default icon (if enabled)
 		if (this.settings.showDefaultIcon) {
-			return this.settings.defaultIcon || '📌';
+			// If no custom default icon, use native Obsidian pin icon
+			return this.settings.defaultIcon || PinnedTabsCustomizerPlugin.NATIVE_PIN_ICON;
 		}
 
 		return null;
@@ -297,8 +302,22 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 				innerContainer.insertBefore(customIcon, innerContainer.firstChild);
 			}
 
-			// Update the icon content
-			customIcon.textContent = icon;
+			// Handle native pin icon vs custom text
+			if (icon === PinnedTabsCustomizerPlugin.NATIVE_PIN_ICON) {
+				// Use native Obsidian pin SVG
+				customIcon.empty();
+				const nativePinSvg = tabEl.querySelector('.workspace-tab-header-status-icon.mod-pinned svg');
+				if (nativePinSvg) {
+					const clonedSvg = nativePinSvg.cloneNode(true) as SVGElement;
+					customIcon.appendChild(clonedSvg);
+				} else {
+					// Fallback if SVG not found
+					customIcon.textContent = '📌';
+				}
+			} else {
+				// Use custom text/emoji
+				customIcon.textContent = icon;
+			}
 			
 			// Add class to the tab to hide the original icon
 			tabEl.classList.add('has-custom-icon');
