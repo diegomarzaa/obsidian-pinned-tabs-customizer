@@ -1,5 +1,7 @@
-import {Menu, Modal, Plugin, Setting, TAbstractFile, TFile} from 'obsidian';
-import {DEFAULT_SETTINGS, PinnedTabsCustomizerSettings, PinnedTabsCustomizerSettingTab} from "./settings";
+import { Menu, Plugin, setIcon, TAbstractFile, TFile } from 'obsidian';
+import { DEFAULT_SETTINGS, NATIVE_PIN_ICON, isLucideIcon, getLucideIconName, type PinnedTabsCustomizerSettings } from './types';
+import { PinnedTabsCustomizerSettingTab } from './settings';
+import { IconPickerModal } from './modals';
 
 export default class PinnedTabsCustomizerPlugin extends Plugin {
 	settings: PinnedTabsCustomizerSettings;
@@ -91,20 +93,16 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 
 	/**
 	 * Set up a MutationObserver to watch for pin/unpin changes
-	 * This catches instant changes that layout-change might miss
 	 */
 	setupPinObserver() {
-		// Disconnect any existing observer
 		if (this.pinObserver) {
 			this.pinObserver.disconnect();
 		}
 
 		this.pinObserver = new MutationObserver((mutations) => {
-			// Check if any mutation involves pin status changes
 			let needsUpdate = false;
 			
 			for (const mutation of mutations) {
-				// Check for class changes on status icons (mod-pinned being added/removed)
 				if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
 					const target = mutation.target as HTMLElement;
 					if (target.classList.contains('workspace-tab-header-status-icon')) {
@@ -112,7 +110,6 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 						break;
 					}
 				}
-				// Check for child additions/removals in status containers
 				if (mutation.type === 'childList') {
 					const target = mutation.target as HTMLElement;
 					if (target.classList.contains('workspace-tab-header-status-container')) {
@@ -127,7 +124,6 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 			}
 		});
 
-		// Observe the entire workspace for changes
 		const workspace = document.querySelector('.workspace');
 		if (workspace) {
 			this.pinObserver.observe(workspace, {
@@ -140,7 +136,6 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 	}
 
 	updateStyles() {
-		// Toggle shrink class based on setting
 		if (this.settings.shrinkPinnedTabs) {
 			document.body.classList.add('pinned-tabs-shrink');
 			document.body.style.setProperty('--pinned-tab-size', `${this.settings.pinnedTabWidth}px`);
@@ -149,7 +144,6 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 			document.body.style.removeProperty('--pinned-tab-size');
 		}
 		
-		// Update icons whenever styles change
 		this.updatePinnedTabIcons();
 	}
 
@@ -157,14 +151,12 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 	 * Update icons on all pinned tabs
 	 */
 	updatePinnedTabIcons() {
-		// Find all pinned tabs (tabs that have a .mod-pinned status icon)
 		const pinnedTabs = document.querySelectorAll('.workspace-tab-header:has(.workspace-tab-header-status-icon.mod-pinned)');
 		
 		pinnedTabs.forEach(tab => {
 			this.updateTabIcon(tab as HTMLElement);
 		});
 
-		// Clean up icons from unpinned tabs
 		const allTabs = document.querySelectorAll('.workspace-tab-header');
 		allTabs.forEach(tab => {
 			const isPinned = tab.querySelector('.workspace-tab-header-status-icon.mod-pinned');
@@ -178,11 +170,9 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 	 * Get the file associated with a tab element
 	 */
 	getFileFromTab(tabEl: HTMLElement): TFile | null {
-		// Get file name from aria-label attribute
 		const fileName = tabEl.getAttribute('aria-label');
 		if (!fileName) return null;
 
-		// Find the file in the vault
 		const files = this.app.vault.getMarkdownFiles();
 		return files.find(f => f.basename === fileName) || null;
 	}
@@ -214,21 +204,18 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 
 			switch (mapping.type) {
 				case 'exact':
-					// Match file name exactly (without extension)
 					if (fileName === mapping.match) {
 						return mapping.icon;
 					}
 					break;
 
 				case 'folder':
-					// Match path prefix (folder)
 					if (filePath.startsWith(mapping.match)) {
 						return mapping.icon;
 					}
 					break;
 
 				case 'regex':
-					// Match file name against regex pattern
 					try {
 						const regex = new RegExp(mapping.match);
 						if (regex.test(fileName)) {
@@ -244,30 +231,22 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 		return null;
 	}
 
-	// Special marker for using native Obsidian pin icon
-	static readonly NATIVE_PIN_ICON = '__native_pin__';
-
 	/**
 	 * Resolve the icon for a pinned tab (priority: frontmatter > mappings > default)
-	 * Returns NATIVE_PIN_ICON marker if native pin should be used
 	 */
 	resolveIconForTab(tabEl: HTMLElement): string | null {
 		const file = this.getFileFromTab(tabEl);
 		
 		if (file) {
-			// Priority 1: Frontmatter
 			const frontmatterIcon = this.getIconFromFrontmatter(file);
 			if (frontmatterIcon) return frontmatterIcon;
 
-			// Priority 2: Mappings
 			const mappingIcon = this.getIconFromMappings(file);
 			if (mappingIcon) return mappingIcon;
 		}
 
-		// Priority 3: Default icon (if enabled)
 		if (this.settings.showDefaultIcon) {
-			// If no custom default icon, use native Obsidian pin icon
-			return this.settings.defaultIcon || PinnedTabsCustomizerPlugin.NATIVE_PIN_ICON;
+			return this.settings.defaultIcon || NATIVE_PIN_ICON;
 		}
 
 		return null;
@@ -277,52 +256,48 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 	 * Update the icon for a single pinned tab
 	 */
 	updateTabIcon(tabEl: HTMLElement) {
-		// Add to the tab header itself, not the icon container
 		const innerContainer = tabEl.querySelector('.workspace-tab-header-inner');
 		if (!innerContainer) return;
 
-		// Only show icons when shrink is enabled
 		if (!this.settings.shrinkPinnedTabs) {
 			this.clearTabIcon(tabEl);
 			return;
 		}
 
-		// Resolve the icon for this tab
 		const icon = this.resolveIconForTab(tabEl);
 
 		if (icon) {
-			// Check if we already have a custom icon element
 			let customIcon = tabEl.querySelector('.pinned-tab-custom-icon') as HTMLElement;
 			
 			if (!customIcon) {
-				// Create the custom icon element
 				customIcon = document.createElement('span');
 				customIcon.className = 'pinned-tab-custom-icon';
-				// Insert at the beginning of inner container
 				innerContainer.insertBefore(customIcon, innerContainer.firstChild);
 			}
 
-			// Handle native pin icon vs custom text
-			if (icon === PinnedTabsCustomizerPlugin.NATIVE_PIN_ICON) {
-				// Use native Obsidian pin SVG
-				customIcon.empty();
+			// Clear previous content
+			customIcon.empty();
+
+			if (icon === NATIVE_PIN_ICON) {
+				// Clone the native pin SVG
 				const nativePinSvg = tabEl.querySelector('.workspace-tab-header-status-icon.mod-pinned svg');
 				if (nativePinSvg) {
 					const clonedSvg = nativePinSvg.cloneNode(true) as SVGElement;
 					customIcon.appendChild(clonedSvg);
 				} else {
-					// Fallback if SVG not found
 					customIcon.textContent = '📌';
 				}
+			} else if (isLucideIcon(icon)) {
+				// Render Lucide icon using setIcon
+				const iconName = getLucideIconName(icon);
+				setIcon(customIcon, iconName);
 			} else {
-				// Use custom text/emoji
+				// Render emoji/text
 				customIcon.textContent = icon;
 			}
 			
-			// Add class to the tab to hide the original icon
 			tabEl.classList.add('has-custom-icon');
 		} else {
-			// Remove custom icon and show original
 			this.clearTabIcon(tabEl);
 		}
 	}
@@ -331,13 +306,10 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 	 * Remove custom icon from a tab
 	 */
 	clearTabIcon(tabEl: HTMLElement) {
-		// Remove custom icon element
 		const customIcon = tabEl.querySelector('.pinned-tab-custom-icon');
 		if (customIcon) {
 			customIcon.remove();
 		}
-
-		// Remove class to show the original icon
 		tabEl.classList.remove('has-custom-icon');
 	}
 
@@ -348,7 +320,6 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 		const customIcons = document.querySelectorAll('.pinned-tab-custom-icon');
 		customIcons.forEach(icon => icon.remove());
 
-		// Remove all has-custom-icon classes
 		const tabs = document.querySelectorAll('.workspace-tab-header.has-custom-icon');
 		tabs.forEach(tab => {
 			tab.classList.remove('has-custom-icon');
@@ -356,17 +327,18 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 	}
 
 	/**
-	 * Open modal to set icon for a file
+	 * Open icon picker modal for a file
 	 */
 	openIconModal(file: TFile) {
-		new SetIconModal(this.app, this, file).open();
+		new IconPickerModal(this.app, this, (icon) => {
+			void this.setIconMapping(file.basename, icon);
+		}).open();
 	}
 
 	/**
 	 * Add or update an exact mapping for a file
 	 */
 	async setIconMapping(fileName: string, icon: string) {
-		// Check if mapping already exists
 		const existingIndex = this.settings.iconMappings.findIndex(
 			m => m.type === 'exact' && m.match === fileName
 		);
@@ -374,10 +346,8 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 		if (icon) {
 			const existingMapping = existingIndex >= 0 ? this.settings.iconMappings[existingIndex] : null;
 			if (existingMapping) {
-				// Update existing
 				existingMapping.icon = icon;
 			} else {
-				// Add new at the beginning (highest priority among mappings)
 				this.settings.iconMappings.unshift({
 					type: 'exact',
 					match: fileName,
@@ -385,7 +355,6 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 				});
 			}
 		} else {
-			// Remove mapping if icon is empty
 			if (existingIndex >= 0) {
 				this.settings.iconMappings.splice(existingIndex, 1);
 			}
@@ -401,72 +370,5 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-	}
-}
-
-/**
- * Modal for setting a pinned tab icon
- */
-class SetIconModal extends Modal {
-	plugin: PinnedTabsCustomizerPlugin;
-	file: TFile;
-	iconValue: string = '';
-
-	constructor(app: import('obsidian').App, plugin: PinnedTabsCustomizerPlugin, file: TFile) {
-		super(app);
-		this.plugin = plugin;
-		this.file = file;
-
-		// Pre-fill with existing mapping if any
-		const existing = plugin.settings.iconMappings.find(
-			m => m.type === 'exact' && m.match === file.basename
-		);
-		if (existing) {
-			this.iconValue = existing.icon;
-		}
-	}
-
-	onOpen() {
-		const { contentEl } = this;
-		contentEl.empty();
-
-		contentEl.createEl('h2', { text: 'Set pinned tab icon' });
-		contentEl.createEl('p', { 
-			text: `File: ${this.file.basename}`,
-			cls: 'setting-item-description'
-		});
-
-		new Setting(contentEl)
-			.setName('Icon')
-			.setDesc('Enter an emoji, symbol, or short text. Leave empty to remove.')
-			.addText(text => {
-				text
-					.setPlaceholder('📌')
-					.setValue(this.iconValue)
-					.onChange(value => {
-						this.iconValue = value;
-					});
-				// Focus the input
-				text.inputEl.focus();
-			});
-
-		new Setting(contentEl)
-			.addButton(btn => btn
-				.setButtonText('Save')
-				.setCta()
-				.onClick(async () => {
-					await this.plugin.setIconMapping(this.file.basename, this.iconValue);
-					this.close();
-				}))
-			.addButton(btn => btn
-				.setButtonText('Cancel')
-				.onClick(() => {
-					this.close();
-				}));
-	}
-
-	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
 	}
 }

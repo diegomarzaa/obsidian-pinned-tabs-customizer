@@ -177,6 +177,9 @@ interface IconMapping {
 - [x] Type badges for folder/regex mappings
 - [x] Drag-and-drop reordering for mappings (replaced up/down buttons)
 - [x] Instant update on pin/unpin (MutationObserver + additional event listeners)
+- [x] Native Obsidian pin icon when default icon is empty
+- [x] Modularized codebase into separate files
+- [x] Enhanced icon picker with categories, search, Lucide icons, and recent icons
 
 ### Phase 5: Right-Click & Commands ✅ COMPLETE
 - [x] Add context menu item to all files

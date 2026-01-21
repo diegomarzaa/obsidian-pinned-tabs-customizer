@@ -1,238 +1,15 @@
-import {App, FuzzySuggestModal, Modal, PluginSettingTab, Setting, TFile, TFolder} from "obsidian";
-import PinnedTabsCustomizerPlugin from "./main";
+import { App, PluginSettingTab, setIcon, Setting } from "obsidian";
+import type PinnedTabsCustomizerPlugin from "./main";
+import { DEFAULT_SETTINGS, isLucideIcon, getLucideIconName, type IconMapping } from "./types";
+import { IconPickerModal, FilePickerModal, FolderPickerModal, RegexPatternModal } from "./modals";
 
-// ═══════════════════════════════════════════════════════════
-// PICKER MODALS
-// ═══════════════════════════════════════════════════════════
-
-/**
- * Modal for picking a file from the vault
- */
-class FilePickerModal extends FuzzySuggestModal<TFile> {
-	private onChoose: (file: TFile) => void;
-
-	constructor(app: App, onChoose: (file: TFile) => void) {
-		super(app);
-		this.onChoose = onChoose;
-		this.setPlaceholder('Search for a file...');
-	}
-
-	getItems(): TFile[] {
-		return this.app.vault.getMarkdownFiles();
-	}
-
-	getItemText(file: TFile): string {
-		return file.basename;
-	}
-
-	onChooseItem(file: TFile): void {
-		this.onChoose(file);
-	}
-
-	renderSuggestion(file: { item: TFile }, el: HTMLElement): void {
-		el.createEl('div', { text: file.item.basename, cls: 'suggestion-title' });
-		if (file.item.parent && file.item.parent.path !== '/') {
-			el.createEl('small', { text: file.item.parent.path, cls: 'suggestion-note' });
-		}
-	}
-}
+// Re-export types for convenience
+export type { IconMapping, PinnedTabsCustomizerSettings } from "./types";
+export { DEFAULT_SETTINGS } from "./types";
 
 /**
- * Modal for picking a folder from the vault
+ * Settings tab for the plugin
  */
-class FolderPickerModal extends FuzzySuggestModal<TFolder> {
-	private onChoose: (folder: TFolder) => void;
-
-	constructor(app: App, onChoose: (folder: TFolder) => void) {
-		super(app);
-		this.onChoose = onChoose;
-		this.setPlaceholder('Search for a folder...');
-	}
-
-	getItems(): TFolder[] {
-		const folders: TFolder[] = [];
-		this.app.vault.getAllLoadedFiles().forEach(file => {
-			if (file instanceof TFolder && file.path !== '/') {
-				folders.push(file);
-			}
-		});
-		return folders;
-	}
-
-	getItemText(folder: TFolder): string {
-		return folder.path;
-	}
-
-	onChooseItem(folder: TFolder): void {
-		this.onChoose(folder);
-	}
-}
-
-/**
- * Modal for entering a regex pattern
- */
-class RegexPatternModal extends Modal {
-	private pattern: string;
-	private onSubmit: (pattern: string) => void;
-
-	constructor(app: App, initialPattern: string, onSubmit: (pattern: string) => void) {
-		super(app);
-		this.pattern = initialPattern;
-		this.onSubmit = onSubmit;
-	}
-
-	onOpen(): void {
-		const { contentEl } = this;
-		contentEl.empty();
-		contentEl.addClass('ptc-modal');
-
-		contentEl.createEl('h2', { text: 'Regex pattern' });
-
-		contentEl.createEl('p', { 
-			text: 'Enter a regex pattern to match file names (without extension).',
-			cls: 'setting-item-description'
-		});
-
-		new Setting(contentEl)
-			.setName('Pattern')
-			.addText(text => {
-				text.setValue(this.pattern)
-					.setPlaceholder('^\\d{4}-\\d{2}-\\d{2}$')
-					.onChange(value => {
-						this.pattern = value;
-					});
-				text.inputEl.addClass('ptc-pattern-input');
-				text.inputEl.focus();
-			});
-
-		new Setting(contentEl)
-			.addButton(btn => btn
-				.setButtonText('Save')
-				.setCta()
-				.onClick(() => {
-					if (this.pattern.trim()) {
-						this.onSubmit(this.pattern.trim());
-						this.close();
-					}
-				}))
-			.addButton(btn => btn
-				.setButtonText('Cancel')
-				.onClick(() => this.close()));
-	}
-
-	onClose(): void {
-		const { contentEl } = this;
-		contentEl.empty();
-	}
-}
-
-/**
- * Modal for changing the icon of a mapping
- */
-class IconPickerModal extends Modal {
-	private icon: string;
-	private patternName: string;
-	private onSubmit: (icon: string) => void;
-
-	constructor(app: App, patternName: string, currentIcon: string, onSubmit: (icon: string) => void) {
-		super(app);
-		this.patternName = patternName;
-		this.icon = currentIcon;
-		this.onSubmit = onSubmit;
-	}
-
-	onOpen(): void {
-		const { contentEl } = this;
-		contentEl.empty();
-		contentEl.addClass('ptc-modal');
-
-		contentEl.createEl('h2', { text: 'Change icon' });
-		contentEl.createEl('p', { 
-			text: `Icon for: ${this.patternName}`,
-			cls: 'setting-item-description'
-		});
-
-		// Quick emoji suggestions
-		const quickPicks = contentEl.createDiv({ cls: 'ptc-quick-picks' });
-		const emojis = ['📌', '📁', '📅', '⭐', '🏠', '📝', '💡', '🔖', '🎯', '📊', '🔒', '💼'];
-		emojis.forEach(emoji => {
-			const btn = quickPicks.createEl('button', { 
-				text: emoji, 
-				cls: 'ptc-emoji-btn'
-			});
-			btn.addEventListener('click', () => {
-				this.icon = emoji;
-				this.onSubmit(this.icon);
-				this.close();
-			});
-		});
-
-		new Setting(contentEl)
-			.setName('Custom icon')
-			.setDesc('Enter any emoji, symbol, or text')
-			.addText(text => {
-				text.setValue(this.icon)
-					.setPlaceholder('📌')
-					.onChange(value => {
-						this.icon = value;
-					});
-				text.inputEl.addClass('ptc-icon-input');
-				text.inputEl.focus();
-			});
-
-		new Setting(contentEl)
-			.addButton(btn => btn
-				.setButtonText('Save')
-				.setCta()
-				.onClick(() => {
-					this.onSubmit(this.icon || '📌');
-					this.close();
-				}))
-			.addButton(btn => btn
-				.setButtonText('Cancel')
-				.onClick(() => this.close()));
-	}
-
-	onClose(): void {
-		const { contentEl } = this;
-		contentEl.empty();
-	}
-}
-
-// ═══════════════════════════════════════════════════════════
-// TYPES & DEFAULTS
-// ═══════════════════════════════════════════════════════════
-
-export interface IconMapping {
-	type: 'exact' | 'folder' | 'regex';
-	match: string;
-	icon: string;
-}
-
-export interface PinnedTabsCustomizerSettings {
-	shrinkPinnedTabs: boolean;
-	pinnedTabWidth: number;
-	showDefaultIcon: boolean;
-	defaultIcon: string;
-	enableFrontmatter: boolean;
-	frontmatterProperty: string;
-	iconMappings: IconMapping[];
-}
-
-export const DEFAULT_SETTINGS: PinnedTabsCustomizerSettings = {
-	shrinkPinnedTabs: false,
-	pinnedTabWidth: 40,
-	showDefaultIcon: true,
-	defaultIcon: '', // Empty = native Obsidian pin icon
-	enableFrontmatter: true,
-	frontmatterProperty: 'pinned-icon',
-	iconMappings: []
-}
-
-// ═══════════════════════════════════════════════════════════
-// SETTINGS TAB
-// ═══════════════════════════════════════════════════════════
-
 export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 	plugin: PinnedTabsCustomizerPlugin;
 
@@ -246,9 +23,16 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 		containerEl.empty();
 		containerEl.addClass('ptc-settings');
 
-		// ═══════════════════════════════════════════════════════════
-		// APPEARANCE SECTION
-		// ═══════════════════════════════════════════════════════════
+		this.renderAppearanceSection(containerEl);
+		this.renderIconSourcesSection(containerEl);
+		this.renderMappingsSection(containerEl);
+	}
+
+	// ═══════════════════════════════════════════════════════════
+	// APPEARANCE SECTION
+	// ═══════════════════════════════════════════════════════════
+
+	private renderAppearanceSection(containerEl: HTMLElement): void {
 		new Setting(containerEl)
 			.setName('Appearance')
 			.setHeading();
@@ -314,13 +98,27 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 							this.plugin.settings.defaultIcon = value;
 							await this.plugin.saveSettings();
 							this.plugin.updateStyles();
+						}))
+					.addExtraButton(btn => btn
+						.setIcon('smile')
+						.setTooltip('Pick icon')
+						.onClick(() => {
+							new IconPickerModal(this.app, this.plugin, (icon) => {
+								this.plugin.settings.defaultIcon = icon;
+								void this.plugin.saveSettings();
+								this.plugin.updateStyles();
+								this.display();
+							}).open();
 						}));
 			}
 		}
+	}
 
-		// ═══════════════════════════════════════════════════════════
-		// ICON SOURCES SECTION
-		// ═══════════════════════════════════════════════════════════
+	// ═══════════════════════════════════════════════════════════
+	// ICON SOURCES SECTION
+	// ═══════════════════════════════════════════════════════════
+
+	private renderIconSourcesSection(containerEl: HTMLElement): void {
 		new Setting(containerEl)
 			.setName('Icon sources')
 			.setHeading();
@@ -350,10 +148,13 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 						this.plugin.updateStyles();
 					}));
 		}
+	}
 
-		// ═══════════════════════════════════════════════════════════
-		// ICON MAPPINGS SECTION
-		// ═══════════════════════════════════════════════════════════
+	// ═══════════════════════════════════════════════════════════
+	// ICON MAPPINGS SECTION
+	// ═══════════════════════════════════════════════════════════
+
+	private renderMappingsSection(containerEl: HTMLElement): void {
 		new Setting(containerEl)
 			.setName('Icon mappings')
 			.setHeading();
@@ -456,14 +257,12 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 		settingEl.addEventListener('dragend', () => {
 			this.draggedIndex = null;
 			settingEl.removeClass('ptc-dragging');
-			// Remove all drag-over states
 			container.querySelectorAll('.ptc-drag-over').forEach(el => el.removeClass('ptc-drag-over'));
 		});
 
 		settingEl.addEventListener('dragover', (e) => {
 			e.preventDefault();
 			if (this.draggedIndex === null || this.draggedIndex === index) return;
-			
 			settingEl.addClass('ptc-drag-over');
 			if (e.dataTransfer) {
 				e.dataTransfer.dropEffect = 'move';
@@ -480,7 +279,6 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 			
 			if (this.draggedIndex === null || this.draggedIndex === index) return;
 
-			// Reorder the array
 			const mappings = this.plugin.settings.iconMappings;
 			const [draggedItem] = mappings.splice(this.draggedIndex, 1);
 			if (draggedItem) {
@@ -496,7 +294,14 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 		
 		const emojiSpan = document.createElement('span');
 		emojiSpan.addClass('ptc-mapping-emoji');
-		emojiSpan.textContent = mapping.icon + ' ';
+		if (isLucideIcon(mapping.icon)) {
+			// Render Lucide icon
+			const iconName = getLucideIconName(mapping.icon);
+			setIcon(emojiSpan, iconName);
+		} else {
+			// Render emoji/text
+			emojiSpan.textContent = mapping.icon + ' ';
+		}
 		nameEl.appendChild(emojiSpan);
 		
 		const matchSpan = document.createElement('span');
@@ -516,22 +321,17 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 		
 		setting.setName(nameEl);
 
-		// Change icon button
+		// Change icon button - uses the new enhanced picker
 		setting.addExtraButton(btn => btn
 			.setIcon('smile')
 			.setTooltip('Change icon')
 			.onClick(() => {
-				new IconPickerModal(
-					this.app,
-					mapping.match,
-					mapping.icon,
-					(icon) => {
-						mapping.icon = icon;
-						void this.plugin.saveSettings();
-						this.plugin.updateStyles();
-						this.display();
-					}
-				).open();
+				new IconPickerModal(this.app, this.plugin, (icon) => {
+					mapping.icon = icon;
+					void this.plugin.saveSettings();
+					this.plugin.updateStyles();
+					this.display();
+				}).open();
 			}));
 
 		// Edit pattern button
