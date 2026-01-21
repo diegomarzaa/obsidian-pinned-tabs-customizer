@@ -1,90 +1,160 @@
-# Obsidian Sample Plugin
+# Pinned Tabs Customizer
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+![License](https://img.shields.io/github/license/diegomarzaa/obsidian-pinned-tabs-customizer)
+![Version](https://img.shields.io/github/v/release/diegomarzaa/obsidian-pinned-tabs-customizer)
+![Obsidian Min Version](https://img.shields.io/badge/Obsidian-1.1.0%2B-brightgreen)
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+Resize pinned tabs and customize their icons with emojis, symbols, or Obsidian icons based on file names, folders, patterns, or tags.
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open modal (simple)" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+## Features
 
-## First time developing plugins?
+### Custom icons for pinned tabs
 
-Quick starting guide for new plugin devs:
+- Assign custom icons to pinned tabs for instant recognition
+- Comprehensive icon picker with emojis, Obsidian icons, and custom text
+- Recent icons section for quick access
+- Supports emojis, symbols, and native Obsidian Lucide icons
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+![Pinned Tabs Example](./img/image.png)
 
-## Releasing new releases
+### Folder-based rules
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+- Apply an icon to ALL files in a folder
+- Includes subfolders automatically
+- Perfect for project folders, areas, or categories
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+![Rules](./img/rules.png)
 
-## Adding your plugin to the community plugin list
+### Frontmatter detection
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+- Set icon per-file using frontmatter property
+- Highest priority - overrides all other rules
+- Customizable property name (default: `pinned-icon`)
 
-## How to use
-
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
-
-## Manually installing the plugin
-
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-## Improve code quality with eslint
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- This project already has eslint preconfigured, you can invoke a check by running`npm run lint`
-- Together with a custom eslint [plugin](https://github.com/obsidianmd/eslint-plugin) for Obsidan specific code guidelines.
-- A GitHub action is preconfigured to automatically lint every commit on all branches.
-
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
+```yaml
+---
+pinned-icon: 🏠
+---
 ```
 
-If you have multiple URLs, you can also do:
+### Advanced pattern matching
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
-```
+- Create patterns to match multiple files at once
+- Perfect for daily notes, weekly notes, meeting notes, etc.
+- **Simple modes** for all skill levels:
+  - **Simple**: Build patterns without regex (starts with, ends with, contains)
+  - **Presets**: 10+ ready-to-use patterns (daily notes, weekly notes, templates, etc.)
+  - **Advanced**: Write custom regex with built-in reference guide
+- Live testing shows which files match your pattern
+- Real-time preview of matching files
 
-## API Documentation
+![Pattern Builder](./img/pattern.png)
 
-See https://docs.obsidian.md
+### Tag-based rules
+
+- Assign icons based on frontmatter or inline tags
+- Perfect for flexible, content-based categorization
+- Supports both `tags: [project]` and `#project` formats
+
+### Conflict detection
+
+- Visual warnings when multiple rules match the same file
+- Shows which files are affected and which rule wins
+- Quick action to reorder rules and resolve conflicts
+
+### Adjustable pinned tab width
+
+- **Shrink pinned tabs** toggle: Enable/disable width shrinking
+- Customize pinned tab widths (40-200 pixels) when enabled
+- Disable to keep normal tab width (only icon changes)
+- Reset button to restore default width
+
+## Installation
+
+### From community plugins
+
+1. Open Settings → Community plugins
+2. Search for "Pinned Tabs Customizer"
+3. Install and enable the plugin
+
+### Manual installation
+
+1. Download the latest release from the [GitHub Releases](https://github.com/diegomarzaa/obsidian-pinned-tabs-customizer/releases) page
+2. Extract to your vault's `.obsidian/plugins/pinned-tabs-customizer` folder
+3. Enable the plugin in Settings → Community plugins
+
+### Using BRAT
+
+1. Install [BRAT](obsidian://show-plugin?id=obsidian42-brat) plugin
+2. Open BRAT settings
+3. Add the following URL: `https://github.com/diegomarzaa/obsidian-pinned-tabs-customizer`
+4. Select the latest version
+5. Click "Add Plugin"
+6. Enable the plugin in Settings → Community plugins
+
+## Usage
+
+### Quick icon assignment
+
+1. Right-click any file and select **"Set pinned tab icon"**
+2. Select an icon from the picker (emoji, Obsidian icon, or custom text)
+3. The mapping is automatically created
+
+### Settings
+
+Navigate to **Settings → Pinned Tabs Customizer** to:
+
+- **Shrink pinned tabs**: Toggle width shrinking
+- **Pinned tab width**: Set the width when shrinking is enabled (40-200 pixels)
+- **Show default icon**: Toggle whether unmapped tabs show an icon
+- **Default icon**: Set a fallback icon (leave empty for native pin icon)
+- **Read icon from frontmatter**: Enable/disable and customize the property name
+- **Add file**: Map a specific file to an icon
+- **Add folder**: Apply icon to all files in a folder
+- **Add pattern**: Create pattern rules (starts with, contains, regex, etc.)
+- **Add tag**: Assign icon to all files with a specific tag
+- **Reorder mappings**: Drag and drop to change priority (first match wins)
+
+### Priority order
+
+1. **Frontmatter** (highest) - `pinned-icon: 🏠` in file
+2. **Mappings** - In order (first match wins)
+3. **Default icon** (if enabled)
+
+### Commands
+
+Access from command palette (Ctrl+P / Cmd+P):
+
+- **Set icon for current file** - Set icon for the active note
+- **Set icon for a file** - Search and set icon for any file
+- **Set icon for a folder** - Assign icon to a folder
+- **Add pattern rule** - Create a new pattern mapping
+- **Add tag rule** - Create a tag-based mapping
+
+### Examples
+
+| Type | Pattern | Matches |
+|------|---------|---------|
+| Folder | `Projects/` | All files in Projects folder |
+| Exact | `Home` | File named "Home" |
+| Starts with | `Meeting` | Meeting notes, Meeting agenda, etc. |
+| Contains | `archive` | archive-2024, project-archive, etc. |
+| Regex | `^\d{4}-\d{2}-\d{2}$` | Daily notes (2024-01-15) |
+| Regex | `^\d{4}-W\d{2}$` | Weekly notes (2024-W03) |
+| Tag | `project` | All files tagged with #project |
+
+## Contributing
+
+Contributions are welcome! Visit the [GitHub repository](https://github.com/diegomarzaa/obsidian-pinned-tabs-customizer) to:
+
+- Report bugs
+- Suggest features
+- Submit pull requests
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## Acknowledgments
+
+- Inspired by [nicosomb shrink-pinned-tabs plugin](https://github.com/nicosomb/obsidian-shrink-pinned-tabs) and community discussions on tab customization
