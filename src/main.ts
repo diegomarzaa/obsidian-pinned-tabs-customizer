@@ -210,7 +210,25 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 					break;
 
 				case 'folder':
-					if (filePath.startsWith(mapping.match)) {
+					if (filePath.startsWith(mapping.match + '/') || filePath === mapping.match) {
+						return mapping.icon;
+					}
+					break;
+
+				case 'starts-with':
+					if (fileName.startsWith(mapping.match)) {
+						return mapping.icon;
+					}
+					break;
+
+				case 'ends-with':
+					if (fileName.endsWith(mapping.match)) {
+						return mapping.icon;
+					}
+					break;
+
+				case 'contains':
+					if (fileName.includes(mapping.match)) {
 						return mapping.icon;
 					}
 					break;

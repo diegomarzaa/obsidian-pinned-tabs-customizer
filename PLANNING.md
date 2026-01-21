@@ -58,9 +58,12 @@ All mappings live in the same settings list. Right-click adds an "Exact" entry h
 
 | Type | Match Against | Example |
 |------|---------------|---------|
-| Exact | File name (without .md) | `Home` → 🏠 |
+| Exact | File name exactly | `Home` → 🏠 |
 | Folder | Full path prefix | `Projects/` → 📁 (includes subfolders) |
-| Regex | File name (without .md) | `^\d{4}-\d{2}-\d{2}$` → 📅 |
+| Starts with | Beginning of file name | `Meeting` → 👥 |
+| Ends with | End of file name | `-notes` → 📝 |
+| Contains | Text anywhere in name | `archive` → 🗃️ |
+| Regex | Regular expression | `^\d{4}-\d{2}-\d{2}$` → 📅 |
 
 - Ordered list — **first match wins**
 - User can reorder via drag-and-drop
@@ -180,6 +183,11 @@ interface IconMapping {
 - [x] Native Obsidian pin icon when default icon is empty
 - [x] Modularized codebase into separate files
 - [x] Enhanced icon picker with categories, search, Lucide icons, and recent icons
+- [x] Enhanced pattern editor with:
+  - Simple match types (starts with, ends with, contains) for non-programmers
+  - Quick presets for common patterns (daily notes, weekly notes, etc.)
+  - Live preview showing which files match the pattern
+  - Test input field to check if a specific filename matches
 
 ### Phase 5: Right-Click & Commands ✅ COMPLETE
 - [x] Add context menu item to all files

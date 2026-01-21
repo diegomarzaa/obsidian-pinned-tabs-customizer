@@ -1,7 +1,8 @@
 import { App, PluginSettingTab, setIcon, Setting } from "obsidian";
 import type PinnedTabsCustomizerPlugin from "./main";
 import { DEFAULT_SETTINGS, isLucideIcon, getLucideIconName, type IconMapping } from "./types";
-import { IconPickerModal, FilePickerModal, FolderPickerModal, RegexPatternModal } from "./modals";
+import { IconPickerModal, FilePickerModal, FolderPickerModal, PatternEditorModal } from "./modals";
+import { PATTERN_TYPE_LABELS } from "./pattern-presets";
 
 // Re-export types for convenience
 export type { IconMapping, PinnedTabsCustomizerSettings } from "./types";
@@ -193,13 +194,13 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 				}))
 			.addButton(btn => btn
 				.setButtonText('Add pattern')
-				.setTooltip('Add regex pattern')
+				.setTooltip('Add pattern rule (starts with, contains, regex...)')
 				.onClick(() => {
-					new RegexPatternModal(this.app, '', (pattern) => {
+					new PatternEditorModal(this.app, 'starts-with', '', (type, pattern) => {
 						this.plugin.settings.iconMappings.unshift({
 							match: pattern,
-							icon: '📅',
-							type: 'regex',
+							icon: '📝',
+							type: type,
 						});
 						void this.plugin.saveSettings();
 						this.plugin.updateStyles();
@@ -311,11 +312,11 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 		matchSpan.textContent = mapping.match || '(empty)';
 		nameEl.appendChild(matchSpan);
 		
+		// Show type badge for non-exact types
 		if (mapping.type !== 'exact') {
-			const typeLabels = { exact: '', regex: ' (regex)', folder: ' (folder)' };
 			const badgeSpan = document.createElement('span');
 			badgeSpan.addClass('ptc-type-badge');
-			badgeSpan.textContent = typeLabels[mapping.type];
+			badgeSpan.textContent = PATTERN_TYPE_LABELS[mapping.type] || mapping.type;
 			nameEl.appendChild(badgeSpan);
 		}
 		
@@ -339,23 +340,25 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 			.setIcon('pencil')
 			.setTooltip('Edit pattern')
 			.onClick(() => {
-				if (mapping.type === 'regex') {
-					new RegexPatternModal(this.app, mapping.match, (pattern) => {
-						mapping.match = pattern;
-						void this.plugin.saveSettings();
-						this.plugin.updateStyles();
-						this.display();
-					}).open();
-				} else if (mapping.type === 'folder') {
+				if (mapping.type === 'folder') {
 					new FolderPickerModal(this.app, (folder) => {
 						mapping.match = folder.path;
 						void this.plugin.saveSettings();
 						this.plugin.updateStyles();
 						this.display();
 					}).open();
-				} else {
+				} else if (mapping.type === 'exact') {
 					new FilePickerModal(this.app, (file) => {
 						mapping.match = file.basename;
+						void this.plugin.saveSettings();
+						this.plugin.updateStyles();
+						this.display();
+					}).open();
+				} else {
+					// For all pattern types: starts-with, ends-with, contains, regex
+					new PatternEditorModal(this.app, mapping.type, mapping.match, (type, pattern) => {
+						mapping.type = type;
+						mapping.match = pattern;
 						void this.plugin.saveSettings();
 						this.plugin.updateStyles();
 						this.display();

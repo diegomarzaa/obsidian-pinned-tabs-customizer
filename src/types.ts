@@ -1,9 +1,25 @@
 /**
+ * Pattern match types
+ */
+export type PatternType = 'exact' | 'folder' | 'starts-with' | 'ends-with' | 'contains' | 'regex';
+
+/**
  * Icon mapping for custom icons per file/folder/pattern
  */
 export interface IconMapping {
-	type: 'exact' | 'folder' | 'regex';
+	type: PatternType;
 	match: string;
+	icon: string;
+}
+
+/**
+ * Pattern preset definition
+ */
+export interface PatternPreset {
+	name: string;
+	description: string;
+	type: PatternType;
+	pattern: string;
 	icon: string;
 }
 

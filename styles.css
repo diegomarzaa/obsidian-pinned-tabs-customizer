@@ -340,3 +340,250 @@ body.pinned-tabs-shrink .workspace-tab-header.has-custom-icon .workspace-tab-hea
     height: 16px;
     stroke: currentColor;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   PATTERN EDITOR MODAL
+   ═══════════════════════════════════════════════════════════ */
+
+.ptc-pattern-editor {
+    width: 500px;
+    max-width: 95vw;
+}
+
+.ptc-pattern-editor h2 {
+    margin: 0 0 16px 0;
+}
+
+/* Presets section */
+.ptc-presets-section {
+    margin-bottom: 20px;
+    padding: 12px;
+    background: var(--background-secondary);
+    border-radius: 8px;
+}
+
+.ptc-presets-header {
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.ptc-presets-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.ptc-preset-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 6px;
+    background: var(--background-primary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 13px;
+}
+
+.ptc-preset-btn:hover {
+    background: var(--background-modifier-hover);
+    border-color: var(--interactive-accent);
+}
+
+.ptc-preset-icon {
+    font-size: 14px;
+}
+
+.ptc-preset-name {
+    color: var(--text-normal);
+}
+
+/* Pattern input */
+.ptc-pattern-input {
+    width: 100%;
+    font-family: var(--font-monospace);
+}
+
+/* Test section */
+.ptc-test-section {
+    margin-top: 20px;
+    padding: 12px;
+    background: var(--background-secondary);
+    border-radius: 8px;
+}
+
+.ptc-test-section h4 {
+    margin: 0 0 10px 0;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.ptc-test-input {
+    width: 100%;
+}
+
+.ptc-test-result {
+    margin-top: 8px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.ptc-test-match {
+    background: hsla(135, 50%, 45%, 0.15);
+    color: hsl(135, 50%, 45%);
+    border: 1px solid hsla(135, 50%, 45%, 0.3);
+}
+
+.ptc-test-no-match {
+    background: hsla(0, 65%, 55%, 0.15);
+    color: hsl(0, 65%, 55%);
+    border: 1px solid hsla(0, 65%, 55%, 0.3);
+}
+
+/* Preview section */
+.ptc-preview-section {
+    margin-top: 20px;
+}
+
+.ptc-preview-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.ptc-preview-header h4 {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.ptc-match-count {
+    font-size: 12px;
+    color: var(--text-faint);
+}
+
+.ptc-preview-list {
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 8px;
+    background: var(--background-secondary);
+    border-radius: 6px;
+}
+
+.ptc-preview-empty {
+    text-align: center;
+    padding: 16px;
+    color: var(--text-faint);
+    font-style: italic;
+}
+
+.ptc-preview-file {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.ptc-preview-file:hover {
+    background: var(--background-modifier-hover);
+}
+
+.ptc-preview-file-icon {
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.ptc-preview-file-name {
+    color: var(--text-normal);
+    font-size: 13px;
+}
+
+.ptc-preview-file-path {
+    color: var(--text-faint);
+    font-size: 11px;
+    margin-left: auto;
+}
+
+.ptc-preview-more {
+    text-align: center;
+    padding: 8px;
+    color: var(--text-faint);
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* Regex reference */
+.ptc-regex-reference {
+    margin: 12px 0;
+    padding: 8px 12px;
+    background: var(--background-secondary);
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.ptc-regex-reference summary {
+    cursor: pointer;
+    color: var(--text-muted);
+    font-weight: 500;
+    user-select: none;
+}
+
+.ptc-regex-reference summary:hover {
+    color: var(--text-normal);
+}
+
+.ptc-regex-reference[open] summary {
+    margin-bottom: 10px;
+}
+
+.ptc-regex-content {
+    padding-top: 4px;
+}
+
+.ptc-regex-content table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.ptc-regex-content table td {
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.ptc-regex-pattern-cell {
+    font-family: var(--font-monospace);
+    color: var(--text-accent);
+    width: 80px;
+}
+
+.ptc-regex-examples-title {
+    margin: 12px 0 6px 0;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.ptc-regex-examples {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 12px;
+}
+
+.ptc-regex-examples li {
+    margin-bottom: 4px;
+}
+
+.ptc-regex-examples code {
+    font-family: var(--font-monospace);
+    background: var(--background-primary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+}
