@@ -3,6 +3,7 @@ import {DEFAULT_SETTINGS, PinnedTabsCustomizerSettings, PinnedTabsCustomizerSett
 
 export default class PinnedTabsCustomizerPlugin extends Plugin {
 	settings: PinnedTabsCustomizerSettings;
+	private pinObserver: MutationObserver | null = null;
 
 	async onload() {
 		await this.loadSettings();
@@ -17,12 +18,22 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 			})
 		);
 
+		// Watch for active leaf changes (includes tab switching)
+		this.registerEvent(
+			this.app.workspace.on('active-leaf-change', () => {
+				this.updatePinnedTabIcons();
+			})
+		);
+
 		// Watch for metadata changes (frontmatter updates)
 		this.registerEvent(
 			this.app.metadataCache.on('changed', () => {
 				this.updatePinnedTabIcons();
 			})
 		);
+
+		// Set up MutationObserver to watch for pin state changes
+		this.setupPinObserver();
 
 		// Initial update
 		this.updatePinnedTabIcons();
@@ -68,8 +79,64 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 		document.body.classList.remove('pinned-tabs-shrink');
 		document.body.style.removeProperty('--pinned-tab-size');
 		
+		// Disconnect pin observer
+		if (this.pinObserver) {
+			this.pinObserver.disconnect();
+			this.pinObserver = null;
+		}
+		
 		// Remove all custom icons we added
 		this.clearAllCustomIcons();
+	}
+
+	/**
+	 * Set up a MutationObserver to watch for pin/unpin changes
+	 * This catches instant changes that layout-change might miss
+	 */
+	setupPinObserver() {
+		// Disconnect any existing observer
+		if (this.pinObserver) {
+			this.pinObserver.disconnect();
+		}
+
+		this.pinObserver = new MutationObserver((mutations) => {
+			// Check if any mutation involves pin status changes
+			let needsUpdate = false;
+			
+			for (const mutation of mutations) {
+				// Check for class changes on status icons (mod-pinned being added/removed)
+				if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+					const target = mutation.target as HTMLElement;
+					if (target.classList.contains('workspace-tab-header-status-icon')) {
+						needsUpdate = true;
+						break;
+					}
+				}
+				// Check for child additions/removals in status containers
+				if (mutation.type === 'childList') {
+					const target = mutation.target as HTMLElement;
+					if (target.classList.contains('workspace-tab-header-status-container')) {
+						needsUpdate = true;
+						break;
+					}
+				}
+			}
+
+			if (needsUpdate) {
+				this.updatePinnedTabIcons();
+			}
+		});
+
+		// Observe the entire workspace for changes
+		const workspace = document.querySelector('.workspace');
+		if (workspace) {
+			this.pinObserver.observe(workspace, {
+				childList: true,
+				subtree: true,
+				attributes: true,
+				attributeFilter: ['class']
+			});
+		}
 	}
 
 	updateStyles() {

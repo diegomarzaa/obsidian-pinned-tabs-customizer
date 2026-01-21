@@ -169,9 +169,14 @@ interface IconMapping {
 - [x] Move up/down buttons for reordering
 - [x] Exact/folder/regex matching logic
 
-**Future improvements (TODO):**
-- [ ] Improve visual design of mapping items
-- [ ] Add autocomplete for folder/file picking (native Obsidian suggest)
+**Polish items completed:**
+- [x] Improved visual design of mapping items (card-style, better spacing)
+- [x] Added autocomplete for folder/file picking (native Obsidian suggest)
+- [x] Modal-based UI for adding/editing mappings (file picker, folder picker, regex modal)
+- [x] Quick emoji picker with common emojis
+- [x] Type badges for folder/regex mappings
+- [x] Drag-and-drop reordering for mappings (replaced up/down buttons)
+- [x] Instant update on pin/unpin (MutationObserver + additional event listeners)
 
 ### Phase 5: Right-Click & Commands ✅ COMPLETE
 - [x] Add context menu item to all files
@@ -211,8 +216,13 @@ Need to:
 
 ---
 
-## Status: All Phases Complete ✅
+## Status: All Phases & Polish Complete ✅
 
-**Remaining polish items:**
-- [ ] Improve visual design of icon mapping settings
-- [ ] Add autocomplete for folder/file picking in mappings
+All features implemented:
+- Shrink pinned tabs with configurable width
+- Default icon support
+- Frontmatter icon support
+- Icon mappings (exact/folder/regex)
+- Right-click & command palette integration
+- Autocomplete for file/folder selection
+- Polished settings UI

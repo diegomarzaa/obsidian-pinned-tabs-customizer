@@ -1,26 +1,173 @@
 /*
  * Pinned Tabs Customizer
- * Styles only apply when body has .pinned-tabs-shrink class
  */
+
+/* ═══════════════════════════════════════════════════════════
+   SETTINGS - GENERAL
+   ═══════════════════════════════════════════════════════════ */
 
 /* Indent for nested settings */
 .setting-indent {
     padding-left: 24px;
-    border-left: 5px solid var(--background-modifier-border);
+    border-left: 3px solid var(--background-modifier-border);
 }
 
 .setting-indent-2 {
     padding-left: 48px;
-    border-left: 5px solid var(--background-modifier-border);
-}
-
-/* Mapping icon input - narrow width */
-.mapping-icon-input {
-    width: 60px !important;
+    border-left: 3px solid var(--background-modifier-border);
 }
 
 /* ═══════════════════════════════════════════════════════════
-   SHRINK STYLES - Only apply when toggle is ON
+   SETTINGS - MAPPING ITEMS
+   ═══════════════════════════════════════════════════════════ */
+
+/* Mappings container */
+.ptc-mappings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Each mapping row */
+.ptc-mapping-item {
+    background: var(--background-secondary);
+    border-radius: 6px;
+    padding: 8px 12px !important;
+    border: 1px solid var(--background-modifier-border);
+    cursor: grab;
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.ptc-mapping-item:hover {
+    border-color: var(--background-modifier-border-hover);
+}
+
+/* Drag handle */
+.ptc-drag-handle {
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-faint);
+    font-size: 12px;
+    letter-spacing: -2px;
+    cursor: grab;
+    padding: 4px;
+    opacity: 0.5;
+    transition: opacity 0.15s ease;
+}
+
+.ptc-mapping-item:hover .ptc-drag-handle {
+    opacity: 1;
+}
+
+/* Dragging state */
+.ptc-mapping-item.ptc-dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+    border-color: var(--interactive-accent);
+}
+
+/* Drop target indicator */
+.ptc-mapping-item.ptc-drag-over {
+    border-color: var(--interactive-accent);
+    border-style: dashed;
+    background: var(--background-modifier-hover);
+}
+
+/* Adjust setting item to make room for drag handle */
+.ptc-mapping-item .setting-item-info {
+    padding-left: 20px;
+}
+
+/* Emoji display in mapping name */
+.ptc-mapping-emoji {
+    font-size: 1.1em;
+    margin-right: 4px;
+}
+
+/* Regex pattern styling */
+.ptc-regex-pattern {
+    font-family: var(--font-monospace);
+    font-size: 0.9em;
+    color: var(--text-accent);
+}
+
+/* Type badge */
+.ptc-type-badge {
+    font-size: 0.75em;
+    color: var(--text-muted);
+    margin-left: 6px;
+    padding: 2px 6px;
+    background: var(--background-modifier-border);
+    border-radius: 4px;
+}
+
+/* Empty state message */
+.ptc-no-mappings {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODALS
+   ═══════════════════════════════════════════════════════════ */
+
+.ptc-modal {
+    max-width: 500px;
+}
+
+.ptc-modal h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+/* Pattern input in modal */
+.ptc-pattern-input {
+    font-family: var(--font-monospace);
+    width: 100%;
+}
+
+/* Icon input in modal */
+.ptc-icon-input {
+    width: 80px !important;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+/* Quick emoji picker grid */
+.ptc-quick-picks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--background-secondary);
+    border-radius: 6px;
+}
+
+.ptc-emoji-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2em;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 6px;
+    background: var(--background-primary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ptc-emoji-btn:hover {
+    background: var(--background-modifier-hover);
+    border-color: var(--interactive-accent);
+    transform: scale(1.1);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TAB SHRINK STYLES - Only apply when toggle is ON
    ═══════════════════════════════════════════════════════════ */
 
 body.pinned-tabs-shrink .workspace-tab-header:has(.mod-pinned) {
