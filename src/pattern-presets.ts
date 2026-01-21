@@ -85,7 +85,8 @@ export const PATTERN_TYPE_LABELS: Record<string, string> = {
 	'starts-with': 'Starts with',
 	'ends-with': 'Ends with',
 	'contains': 'Contains',
-	'regex': 'Regex (advanced)'
+	'regex': 'Regex (advanced)',
+	'tag': 'Tag'
 };
 
 /**

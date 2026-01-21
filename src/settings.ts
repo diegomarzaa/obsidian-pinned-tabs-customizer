@@ -1,8 +1,9 @@
-import { App, PluginSettingTab, setIcon, Setting } from "obsidian";
+import { App, PluginSettingTab, setIcon, Setting, TFile } from "obsidian";
 import type PinnedTabsCustomizerPlugin from "./main";
 import { DEFAULT_SETTINGS, isLucideIcon, getLucideIconName, type IconMapping } from "./types";
-import { IconPickerModal, FilePickerModal, FolderPickerModal, PatternEditorModal } from "./modals";
+import { IconPickerModal, FilePickerModal, FolderPickerModal, PatternEditorModal, TagPickerModal } from "./modals";
 import { PATTERN_TYPE_LABELS } from "./pattern-presets";
+import { testPattern } from "./modals/pattern-editor";
 
 // Re-export types for convenience
 export type { IconMapping, PinnedTabsCustomizerSettings } from "./types";
@@ -13,6 +14,7 @@ export { DEFAULT_SETTINGS } from "./types";
  */
 export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 	plugin: PinnedTabsCustomizerPlugin;
+	private expandedConflicts = new Set<number>();
 
 	constructor(app: App, plugin: PinnedTabsCustomizerPlugin) {
 		super(app, plugin);
@@ -23,6 +25,9 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 		containerEl.addClass('ptc-settings');
+		
+		// Clear expanded conflicts state
+		this.expandedConflicts.clear();
 
 		this.renderAppearanceSection(containerEl);
 		this.renderIconSourcesSection(containerEl);
@@ -206,6 +211,21 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 						this.plugin.updateStyles();
 						this.display();
 					}).open();
+				}))
+			.addButton(btn => btn
+				.setButtonText('Add tag')
+				.setTooltip('Add tag rule (matches files with a specific tag)')
+				.onClick(() => {
+					new TagPickerModal(this.app, (tag) => {
+						this.plugin.settings.iconMappings.unshift({
+							match: tag,
+							icon: '🏷️',
+							type: 'tag',
+						});
+						void this.plugin.saveSettings();
+						this.plugin.updateStyles();
+						this.display();
+					}).open();
 				}));
 
 		// Mappings container for drag-and-drop
@@ -232,7 +252,10 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 	 * Render a single mapping row with drag-and-drop support
 	 */
 	private renderMapping(container: HTMLElement, mapping: IconMapping, index: number): void {
-		const setting = new Setting(container);
+		// Wrap each mapping in a container so conflict details can appear below
+		const mappingWrapper = container.createDiv({ cls: 'ptc-mapping-wrapper' });
+		
+		const setting = new Setting(mappingWrapper);
 		const settingEl = setting.settingEl;
 		settingEl.addClass('ptc-mapping-item');
 		
@@ -319,6 +342,34 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 			badgeSpan.textContent = PATTERN_TYPE_LABELS[mapping.type] || mapping.type;
 			nameEl.appendChild(badgeSpan);
 		}
+
+		// Show match count badge
+		const matchCount = this.countMatchingFiles(mapping);
+		const countBadge = document.createElement('span');
+		countBadge.addClass('ptc-count-badge');
+		countBadge.textContent = `${matchCount} file${matchCount !== 1 ? 's' : ''}`;
+		if (matchCount === 0) {
+			countBadge.addClass('ptc-count-zero');
+		}
+		nameEl.appendChild(countBadge);
+
+		// Show conflict badge if this mapping has conflicts
+		const conflicts = this.getMappingConflicts(mapping, index);
+		if (conflicts.length > 0) {
+			const conflictBadge = document.createElement('span');
+			conflictBadge.addClass('ptc-conflict-badge');
+			conflictBadge.textContent = `⚠️ ${conflicts.length} conflict${conflicts.length !== 1 ? 's' : ''}`;
+			conflictBadge.setAttribute('role', 'button');
+			conflictBadge.setAttribute('tabindex', '0');
+			conflictBadge.setAttribute('title', 'Click to see conflicts');
+			nameEl.appendChild(conflictBadge);
+
+			// Make it clickable to toggle details
+			conflictBadge.addEventListener('click', (e) => {
+				e.stopPropagation();
+				this.toggleConflictDetails(mappingWrapper, settingEl, mapping, index, conflicts);
+			});
+		}
 		
 		setting.setName(nameEl);
 
@@ -354,6 +405,13 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 						this.plugin.updateStyles();
 						this.display();
 					}).open();
+				} else if (mapping.type === 'tag') {
+					new TagPickerModal(this.app, (tag) => {
+						mapping.match = tag;
+						void this.plugin.saveSettings();
+						this.plugin.updateStyles();
+						this.display();
+					}).open();
 				} else {
 					// For all pattern types: starts-with, ends-with, contains, regex
 					new PatternEditorModal(this.app, mapping.type, mapping.match, (type, pattern) => {
@@ -366,6 +424,23 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 				}
 			}));
 
+		// Duplicate button
+		setting.addExtraButton(btn => btn
+			.setIcon('copy')
+			.setTooltip('Duplicate')
+			.onClick(() => {
+				const duplicate = {
+					type: mapping.type,
+					match: mapping.match,
+					icon: mapping.icon
+				};
+				// Insert right after the current mapping
+				this.plugin.settings.iconMappings.splice(index + 1, 0, duplicate);
+				void this.plugin.saveSettings();
+				this.plugin.updateStyles();
+				this.display();
+			}));
+
 		// Delete button
 		setting.addExtraButton(btn => btn
 			.setIcon('trash')
@@ -376,5 +451,135 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 				this.plugin.updateStyles();
 				this.display();
 			}));
+	}
+
+	/**
+	 * Count how many files in the vault match a mapping
+	 */
+	private countMatchingFiles(mapping: IconMapping): number {
+		const allFiles = this.app.vault.getMarkdownFiles();
+		let count = 0;
+
+		for (const file of allFiles) {
+			if (this.fileMatchesMapping(file, mapping)) {
+				count++;
+			}
+		}
+
+		return count;
+	}
+
+	/**
+	 * Check if a file matches a specific mapping
+	 */
+	private fileMatchesMapping(file: TFile, mapping: IconMapping): boolean {
+		if (!mapping.match) return false;
+
+		const fileName = file.basename;
+		const filePath = file.path;
+
+		switch (mapping.type) {
+			case 'exact':
+				return fileName === mapping.match;
+			case 'folder':
+				return filePath.startsWith(mapping.match + '/') || filePath === mapping.match;
+			case 'tag':
+				return this.plugin.fileHasTag(file, mapping.match);
+			case 'starts-with':
+			case 'ends-with':
+			case 'contains':
+			case 'regex':
+				return testPattern(fileName, mapping.type, mapping.match);
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * Get conflicts for a mapping (files that match this mapping but also match earlier mappings)
+	 */
+	private getMappingConflicts(mapping: IconMapping, currentIndex: number): Array<{ file: TFile; winningIndex: number; winningMapping: IconMapping }> {
+		const conflicts: Array<{ file: TFile; winningIndex: number; winningMapping: IconMapping }> = [];
+		const allFiles = this.app.vault.getMarkdownFiles();
+
+		// Check each file that matches this mapping
+		for (const file of allFiles) {
+			if (!this.fileMatchesMapping(file, mapping)) continue;
+
+			// Check if an earlier mapping also matches this file
+			for (let i = 0; i < currentIndex; i++) {
+				const earlierMapping = this.plugin.settings.iconMappings[i];
+				if (!earlierMapping) continue;
+				if (this.fileMatchesMapping(file, earlierMapping)) {
+					conflicts.push({
+						file: file,
+						winningIndex: i,
+						winningMapping: earlierMapping
+					});
+					break; // Only count first conflict (first match wins)
+				}
+			}
+		}
+
+		return conflicts;
+	}
+
+	/**
+	 * Toggle conflict details display
+	 */
+	private toggleConflictDetails(wrapper: HTMLElement, settingEl: HTMLElement, mapping: IconMapping, index: number, conflicts: Array<{ file: TFile; winningIndex: number; winningMapping: IconMapping }>): void {
+		// Remove existing details if present
+		const existingDetails = wrapper.querySelector('.ptc-conflict-details');
+		if (existingDetails) {
+			existingDetails.remove();
+			this.expandedConflicts.delete(index);
+			return;
+		}
+
+		// Create conflict details section below the setting item
+		const details = wrapper.createDiv({ cls: 'ptc-conflict-details' });
+		
+		const header = details.createDiv({ cls: 'ptc-conflict-header' });
+		header.createEl('strong', { text: `${conflicts.length} file${conflicts.length !== 1 ? 's' : ''} already matched by earlier rules:` });
+
+		const conflictsList = details.createDiv({ cls: 'ptc-conflict-list' });
+		
+		conflicts.forEach(({ file, winningIndex, winningMapping }) => {
+			const conflictItem = conflictsList.createDiv({ cls: 'ptc-conflict-item' });
+			
+			// File name (clickable to open)
+			const fileNameEl = conflictItem.createEl('span', { cls: 'ptc-conflict-file', text: file.basename });
+			fileNameEl.setAttribute('role', 'button');
+			fileNameEl.setAttribute('title', 'Click to open file');
+			fileNameEl.addEventListener('click', () => {
+				void this.app.workspace.openLinkText(file.path, '', false);
+			});
+
+			conflictItem.createSpan({ text: ' → ' });
+
+			// Winning rule info
+			const winningRuleEl = conflictItem.createEl('span', { cls: 'ptc-conflict-rule' });
+			winningRuleEl.textContent = `Rule #${winningIndex + 1}`;
+			winningRuleEl.setAttribute('title', `Wins: ${winningMapping.match} (${PATTERN_TYPE_LABELS[winningMapping.type] || winningMapping.type})`);
+
+			// Quick action: Move this rule up
+			const moveUpBtn = conflictItem.createEl('button', { 
+				cls: 'ptc-conflict-action', 
+				text: 'Move up',
+				title: 'Move this rule above the winning rule'
+			});
+			moveUpBtn.addEventListener('click', () => {
+				const mappings = this.plugin.settings.iconMappings;
+				const [currentMapping] = mappings.splice(index, 1);
+				if (currentMapping) {
+					mappings.splice(winningIndex, 0, currentMapping);
+					void this.plugin.saveSettings();
+					this.plugin.updateStyles();
+					this.display();
+				}
+			});
+		});
+
+		this.expandedConflicts.add(index);
 	}
 }

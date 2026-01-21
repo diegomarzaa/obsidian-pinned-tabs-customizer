@@ -1,7 +1,7 @@
 /**
  * Pattern match types
  */
-export type PatternType = 'exact' | 'folder' | 'starts-with' | 'ends-with' | 'contains' | 'regex';
+export type PatternType = 'exact' | 'folder' | 'starts-with' | 'ends-with' | 'contains' | 'regex' | 'tag';
 
 /**
  * Icon mapping for custom icons per file/folder/pattern
@@ -45,7 +45,7 @@ export const DEFAULT_SETTINGS: PinnedTabsCustomizerSettings = {
 	pinnedTabWidth: 40,
 	showDefaultIcon: true,
 	defaultIcon: '', // Empty = native Obsidian pin icon
-	enableFrontmatter: true,
+	enableFrontmatter: false,
 	frontmatterProperty: 'pinned-icon',
 	iconMappings: [],
 	recentIcons: []

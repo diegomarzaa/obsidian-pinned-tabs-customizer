@@ -1,7 +1,7 @@
 import { Menu, Plugin, setIcon, TAbstractFile, TFile } from 'obsidian';
-import { DEFAULT_SETTINGS, NATIVE_PIN_ICON, isLucideIcon, getLucideIconName, type PinnedTabsCustomizerSettings } from './types';
+import { DEFAULT_SETTINGS, NATIVE_PIN_ICON, isLucideIcon, getLucideIconName, type PinnedTabsCustomizerSettings, type PatternType } from './types';
 import { PinnedTabsCustomizerSettingTab } from './settings';
-import { IconPickerModal } from './modals';
+import { IconPickerModal, FilePickerModal, FolderPickerModal, PatternEditorModal, TagPickerModal } from './modals';
 
 export default class PinnedTabsCustomizerPlugin extends Plugin {
 	settings: PinnedTabsCustomizerSettings;
@@ -46,7 +46,7 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 		// Add command to set icon for current file
 		this.addCommand({
 			id: 'set-pinned-tab-icon',
-			name: 'Set pinned tab icon for current file',
+			name: 'Set icon for current file',
 			checkCallback: (checking: boolean) => {
 				const file = this.app.workspace.getActiveFile();
 				if (file) {
@@ -56,6 +56,74 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 					return true;
 				}
 				return false;
+			}
+		});
+
+		// Add command to set icon for any file
+		this.addCommand({
+			id: 'set-icon-for-file',
+			name: 'Set icon for a file',
+			callback: () => {
+				new FilePickerModal(this.app, (file) => {
+					this.openIconModal(file);
+				}).open();
+			}
+		});
+
+		// Add command to set icon for a folder
+		this.addCommand({
+			id: 'set-icon-for-folder',
+			name: 'Set icon for a folder',
+			callback: () => {
+				new FolderPickerModal(this.app, (folder) => {
+					new IconPickerModal(this.app, this, (icon) => {
+						this.settings.iconMappings.unshift({
+							match: folder.path,
+							icon: icon,
+							type: 'folder',
+						});
+						void this.saveSettings();
+						this.updatePinnedTabIcons();
+					}).open();
+				}).open();
+			}
+		});
+
+		// Add command to create a pattern rule
+		this.addCommand({
+			id: 'add-pattern-rule',
+			name: 'Add pattern rule',
+			callback: () => {
+				new PatternEditorModal(this.app, 'starts-with', '', (type: PatternType, pattern: string) => {
+					new IconPickerModal(this.app, this, (icon) => {
+						this.settings.iconMappings.unshift({
+							match: pattern,
+							icon: icon,
+							type: type,
+						});
+						void this.saveSettings();
+						this.updatePinnedTabIcons();
+					}).open();
+				}).open();
+			}
+		});
+
+		// Add command to create a tag rule
+		this.addCommand({
+			id: 'add-tag-rule',
+			name: 'Add tag rule',
+			callback: () => {
+				new TagPickerModal(this.app, (tag) => {
+					new IconPickerModal(this.app, this, (icon) => {
+						this.settings.iconMappings.unshift({
+							match: tag,
+							icon: icon,
+							type: 'tag',
+						});
+						void this.saveSettings();
+						this.updatePinnedTabIcons();
+					}).open();
+				}).open();
 			}
 		});
 
@@ -243,10 +311,49 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 						// Invalid regex, skip
 					}
 					break;
+
+				case 'tag':
+					if (this.fileHasTag(file, mapping.match)) {
+						return mapping.icon;
+					}
+					break;
 			}
 		}
 
 		return null;
+	}
+
+	/**
+	 * Check if a file has a specific tag
+	 */
+	fileHasTag(file: TFile, tag: string): boolean {
+		const cache = this.app.metadataCache.getFileCache(file);
+		if (!cache) return false;
+
+		const normalizedTag = tag.replace(/^#/, '').toLowerCase();
+
+		// Check frontmatter tags
+		if (cache.frontmatter?.tags) {
+			const fmTags = cache.frontmatter.tags as string[] | string;
+			if (Array.isArray(fmTags)) {
+				if (fmTags.some(t => String(t).replace(/^#/, '').toLowerCase() === normalizedTag)) {
+					return true;
+				}
+			} else if (typeof fmTags === 'string') {
+				if (fmTags.replace(/^#/, '').toLowerCase() === normalizedTag) {
+					return true;
+				}
+			}
+		}
+
+		// Check inline tags
+		if (cache.tags) {
+			if (cache.tags.some(t => t.tag.replace(/^#/, '').toLowerCase() === normalizedTag)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
