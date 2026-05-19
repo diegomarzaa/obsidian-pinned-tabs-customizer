@@ -143,6 +143,12 @@ Access from command palette (Ctrl+P / Cmd+P):
 | Regex | `^\d{4}-W\d{2}$` | Weekly notes (2024-W03) |
 | Tag | `project` | All files tagged with #project |
 
+## Privacy
+
+Pinned Tabs Customizer runs locally in your vault and does not make network requests.
+
+Some features enumerate markdown files in the vault to power file picking, tag picking, pattern previews, match counts, and rule conflict detection. File contents, file names, and vault data are not sent anywhere.
+
 ## Contributing
 
 Contributions are welcome! Visit the [GitHub repository](https://github.com/diegomarzaa/obsidian-pinned-tabs-customizer) to:
