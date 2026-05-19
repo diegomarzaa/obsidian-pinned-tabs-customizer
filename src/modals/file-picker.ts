@@ -25,7 +25,7 @@ export class FilePickerModal extends FuzzySuggestModal<TFile> {
 	}
 
 	renderSuggestion(file: { item: TFile }, el: HTMLElement): void {
-		el.createEl('div', { text: file.item.basename, cls: 'suggestion-title' });
+		el.createDiv({ text: file.item.basename, cls: 'suggestion-title' });
 		if (file.item.parent && file.item.parent.path !== '/') {
 			el.createEl('small', { text: file.item.parent.path, cls: 'suggestion-note' });
 		}

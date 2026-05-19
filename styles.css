@@ -29,10 +29,10 @@
 }
 
 /* Each mapping row */
-.ptc-mapping-item {
+.ptc-settings .setting-item.ptc-mapping-item {
     background: var(--background-secondary);
     border-radius: 6px;
-    padding: 8px 12px !important;
+    padding: 8px 12px;
     border: 1px solid var(--background-modifier-border);
     cursor: grab;
     transition: all 0.15s ease;
@@ -176,13 +176,12 @@
 .ptc-conflict-file {
     color: var(--text-accent);
     cursor: pointer;
-    text-decoration: underline;
-    text-decoration-color: transparent;
-    transition: text-decoration-color 0.15s;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
 }
 
 .ptc-conflict-file:hover {
-    text-decoration-color: var(--text-accent);
+    border-color: var(--text-accent);
 }
 
 .ptc-conflict-rule {
@@ -256,7 +255,7 @@
 }
 
 .ptc-icon-picker h2 {
-    margin: 0 0 16px 0;
+    margin: 0 0 16px;
 }
 
 /* Search input */
@@ -407,17 +406,17 @@
    TAB SHRINK STYLES - Only apply when toggle is ON
    ═══════════════════════════════════════════════════════════ */
 
-body.pinned-tabs-shrink .workspace-tab-header:has(.mod-pinned) {
+body.pinned-tabs-shrink .workspace-tab-header.pinned-tabs-shrink-target {
     --tab-max-width: var(--pinned-tab-size, 40px);
     --tab-width: var(--pinned-tab-size, 40px);
     justify-content: center;
 }
 
-body.pinned-tabs-shrink .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-inner-title {
+body.pinned-tabs-shrink .workspace-tab-header.pinned-tabs-shrink-target .workspace-tab-header-inner-title {
     display: none;
 }
 
-body.pinned-tabs-shrink .workspace-tab-header:has(.mod-pinned) .workspace-tab-header-status-container {
+body.pinned-tabs-shrink .workspace-tab-header.pinned-tabs-shrink-target .workspace-tab-header-status-container {
     display: none;
 }
 
@@ -426,13 +425,13 @@ body.pinned-tabs-shrink .workspace-tab-header:has(.mod-pinned) .workspace-tab-he
    ═══════════════════════════════════════════════════════════ */
 
 /* Hide original icon when tab has custom icon */
-.workspace-tab-header.has-custom-icon .workspace-tab-header-inner-icon {
-    display: none !important;
+body.pinned-tabs-shrink .workspace-tab-header.has-custom-icon .workspace-tab-header-inner-icon {
+    display: none;
 }
 
 /* Fix centering - override asymmetric padding on shrunk pinned tabs */
 body.pinned-tabs-shrink .workspace-tab-header.has-custom-icon .workspace-tab-header-inner {
-    padding: 0 !important;
+    padding: 0;
     justify-content: center;
     align-items: center;
 }
@@ -466,7 +465,7 @@ body.pinned-tabs-shrink .workspace-tab-header.has-custom-icon .workspace-tab-hea
 }
 
 .ptc-pattern-editor h2 {
-    margin: 0 0 16px 0;
+    margin: 0 0 16px;
 }
 
 /* Presets section */
@@ -516,12 +515,6 @@ body.pinned-tabs-shrink .workspace-tab-header.has-custom-icon .workspace-tab-hea
     color: var(--text-normal);
 }
 
-/* Pattern input */
-.ptc-pattern-input {
-    width: 100%;
-    font-family: var(--font-monospace);
-}
-
 /* Test section */
 .ptc-test-section {
     margin-top: 20px;
@@ -531,7 +524,7 @@ body.pinned-tabs-shrink .workspace-tab-header.has-custom-icon .workspace-tab-hea
 }
 
 .ptc-test-section h4 {
-    margin: 0 0 10px 0;
+    margin: 0 0 10px;
     font-size: 13px;
     color: var(--text-muted);
 }
@@ -680,7 +673,7 @@ body.pinned-tabs-shrink .workspace-tab-header.has-custom-icon .workspace-tab-hea
 }
 
 .ptc-regex-examples-title {
-    margin: 12px 0 6px 0;
+    margin: 12px 0 6px;
     font-weight: 500;
     color: var(--text-muted);
 }

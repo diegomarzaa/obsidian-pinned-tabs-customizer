@@ -103,7 +103,7 @@ export class PatternEditorModal extends Modal {
 				});
 			text.inputEl.addClass('ptc-pattern-input');
 			// Auto-focus
-			setTimeout(() => text.inputEl.focus(), 50);
+			activeWindow.setTimeout(() => text.inputEl.focus(), 50);
 		});
 
 		// Regex reference (only shown when regex is selected)
@@ -135,7 +135,7 @@ export class PatternEditorModal extends Modal {
 		const previewSection = contentEl.createDiv({ cls: 'ptc-preview-section' });
 		const previewHeader = previewSection.createDiv({ cls: 'ptc-preview-header' });
 		previewHeader.createEl('h4', { text: 'Matching files' });
-		this.matchCountEl = previewHeader.createEl('span', { cls: 'ptc-match-count' });
+		this.matchCountEl = previewHeader.createSpan({ cls: 'ptc-match-count' });
 		
 		this.previewContainer = previewSection.createDiv({ cls: 'ptc-preview-list' });
 		this.updatePreview();
@@ -166,8 +166,8 @@ export class PatternEditorModal extends Modal {
 		
 		PATTERN_PRESETS.forEach(preset => {
 			const presetBtn = presetsGrid.createDiv({ cls: 'ptc-preset-btn' });
-			presetBtn.createEl('span', { text: preset.icon, cls: 'ptc-preset-icon' });
-			presetBtn.createEl('span', { text: preset.name, cls: 'ptc-preset-name' });
+			presetBtn.createSpan({ text: preset.icon, cls: 'ptc-preset-icon' });
+			presetBtn.createSpan({ text: preset.name, cls: 'ptc-preset-name' });
 			presetBtn.setAttribute('title', preset.description);
 			
 			presetBtn.addEventListener('click', () => {
@@ -330,13 +330,13 @@ export class PatternEditorModal extends Modal {
 		// Render matching files
 		matchingFiles.forEach(file => {
 			const fileEl = this.previewContainer!.createDiv({ cls: 'ptc-preview-file' });
-			fileEl.createEl('span', { text: '📄', cls: 'ptc-preview-file-icon' });
+			fileEl.createSpan({ text: '📄', cls: 'ptc-preview-file-icon' });
 			
-			const nameEl = fileEl.createEl('span', { cls: 'ptc-preview-file-name' });
+			const nameEl = fileEl.createSpan({ cls: 'ptc-preview-file-name' });
 			nameEl.textContent = file.basename;
 			
 			if (file.parent && file.parent.path !== '/') {
-				fileEl.createEl('span', { 
+				fileEl.createSpan({ 
 					text: file.parent.path, 
 					cls: 'ptc-preview-file-path' 
 				});

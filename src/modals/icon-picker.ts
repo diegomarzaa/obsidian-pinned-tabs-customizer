@@ -49,7 +49,7 @@ export class IconPickerModal extends Modal {
 
 		// Custom input section
 		const customSection = contentEl.createDiv({ cls: 'ptc-custom-input-section' });
-		customSection.createEl('span', { text: 'Or enter custom:', cls: 'ptc-custom-label' });
+		customSection.createSpan({ text: 'Or enter custom:', cls: 'ptc-custom-label' });
 		const customInput = customSection.createEl('input', {
 			type: 'text',
 			placeholder: 'Type emoji or text',

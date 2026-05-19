@@ -1,6 +1,6 @@
 {
 	"name": "pinned-tabs-customizer",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Customize the appearance and behavior of pinned tabs in Obsidian.",
 	"main": "main.js",
 	"type": "module",
@@ -22,9 +22,75 @@
 		"jiti": "2.6.1",
 		"tslib": "2.4.0",
 		"typescript": "^5.8.3",
-		"typescript-eslint": "8.35.1"
+		"typescript-eslint": "8.59.4"
 	},
 	"dependencies": {
 		"obsidian": "latest"
+	},
+	"overrides": {
+		"@eslint/config-array": {
+			"minimatch": {
+				".": "3.1.5",
+				"brace-expansion": "1.1.13"
+			}
+		},
+		"@eslint/eslintrc": {
+			"ajv": "6.14.0",
+			"minimatch": {
+				".": "3.1.5",
+				"brace-expansion": "1.1.13"
+			}
+		},
+		"eslint": {
+			"ajv": "6.14.0",
+			"minimatch": {
+				".": "3.1.5",
+				"brace-expansion": "1.1.13"
+			}
+		},
+		"eslint-plugin-import": {
+			"minimatch": {
+				".": "3.1.5",
+				"brace-expansion": "1.1.13"
+			}
+		},
+		"eslint-plugin-json-schema-validator": {
+			"ajv": "8.18.0",
+			"minimatch": {
+				".": "8.0.7",
+				"brace-expansion": "2.0.3"
+			}
+		},
+		"eslint-plugin-n": {
+			"minimatch": {
+				".": "9.0.9",
+				"brace-expansion": "2.0.3"
+			}
+		},
+		"eslint-plugin-react": {
+			"minimatch": {
+				".": "3.1.5",
+				"brace-expansion": "1.1.13"
+			}
+		},
+		"fast-uri": "3.1.2",
+		"flat-cache": {
+			"flatted": "3.4.2"
+		},
+		"json-schema-migrate": {
+			"ajv": "8.18.0"
+		},
+		"micromatch": {
+			"picomatch": "2.3.2"
+		},
+		"@typescript-eslint/typescript-estree": {
+			"minimatch": {
+				".": "9.0.9",
+				"brace-expansion": "2.0.3"
+			}
+		},
+		"yaml-eslint-parser": {
+			"yaml": "2.8.3"
+		}
 	}
 }

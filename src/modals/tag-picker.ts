@@ -60,7 +60,7 @@ export class TagPickerModal extends FuzzySuggestModal<string> {
 	}
 
 	renderSuggestion(item: { item: string; match: { score: number } }, el: HTMLElement): void {
-		el.createEl('span', { text: '#', cls: 'ptc-tag-hash' });
-		el.createEl('span', { text: item.item });
+		el.createSpan({ text: '#', cls: 'ptc-tag-hash' });
+		el.createSpan({ text: item.item });
 	}
 }

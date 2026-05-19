@@ -146,8 +146,8 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 
 	onunload() {
 		// Clean up CSS variables and classes
-		document.body.classList.remove('pinned-tabs-shrink');
-		document.body.style.removeProperty('--pinned-tab-size');
+		activeDocument.body.classList.remove('pinned-tabs-shrink');
+		activeDocument.body.style.removeProperty('--pinned-tab-size');
 		
 		// Disconnect pin observer
 		if (this.pinObserver) {
@@ -192,7 +192,7 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 			}
 		});
 
-		const workspace = document.querySelector('.workspace');
+		const workspace = activeDocument.querySelector('.workspace');
 		if (workspace) {
 			this.pinObserver.observe(workspace, {
 				childList: true,
@@ -205,11 +205,11 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 
 	updateStyles() {
 		if (this.settings.shrinkPinnedTabs) {
-			document.body.classList.add('pinned-tabs-shrink');
-			document.body.style.setProperty('--pinned-tab-size', `${this.settings.pinnedTabWidth}px`);
+			activeDocument.body.classList.add('pinned-tabs-shrink');
+			activeDocument.body.style.setProperty('--pinned-tab-size', `${this.settings.pinnedTabWidth}px`);
 		} else {
-			document.body.classList.remove('pinned-tabs-shrink');
-			document.body.style.removeProperty('--pinned-tab-size');
+			activeDocument.body.classList.remove('pinned-tabs-shrink');
+			activeDocument.body.style.removeProperty('--pinned-tab-size');
 		}
 		
 		this.updatePinnedTabIcons();
@@ -219,16 +219,14 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 	 * Update icons on all pinned tabs
 	 */
 	updatePinnedTabIcons() {
-		const pinnedTabs = document.querySelectorAll('.workspace-tab-header:has(.workspace-tab-header-status-icon.mod-pinned)');
-		
-		pinnedTabs.forEach(tab => {
-			this.updateTabIcon(tab as HTMLElement);
-		});
-
-		const allTabs = document.querySelectorAll('.workspace-tab-header');
+		const allTabs = activeDocument.querySelectorAll('.workspace-tab-header');
 		allTabs.forEach(tab => {
 			const isPinned = tab.querySelector('.workspace-tab-header-status-icon.mod-pinned');
-			if (!isPinned) {
+			if (isPinned) {
+				tab.addClass('pinned-tabs-shrink-target');
+				this.updateTabIcon(tab as HTMLElement);
+			} else {
+				tab.removeClass('pinned-tabs-shrink-target');
 				this.clearTabIcon(tab as HTMLElement);
 			}
 		});
@@ -395,8 +393,7 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 			let customIcon = tabEl.querySelector('.pinned-tab-custom-icon') as HTMLElement;
 			
 			if (!customIcon) {
-				customIcon = document.createElement('span');
-				customIcon.className = 'pinned-tab-custom-icon';
+				customIcon = tabEl.createSpan({ cls: 'pinned-tab-custom-icon' });
 				innerContainer.insertBefore(customIcon, innerContainer.firstChild);
 			}
 
@@ -442,12 +439,13 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 	 * Clear all custom icons (used on unload)
 	 */
 	clearAllCustomIcons() {
-		const customIcons = document.querySelectorAll('.pinned-tab-custom-icon');
+		const customIcons = activeDocument.querySelectorAll('.pinned-tab-custom-icon');
 		customIcons.forEach(icon => icon.remove());
 
-		const tabs = document.querySelectorAll('.workspace-tab-header.has-custom-icon');
+		const tabs = activeDocument.querySelectorAll('.workspace-tab-header.has-custom-icon, .workspace-tab-header.pinned-tabs-shrink-target');
 		tabs.forEach(tab => {
 			tab.classList.remove('has-custom-icon');
+			tab.classList.remove('pinned-tabs-shrink-target');
 		});
 	}
 

@@ -314,10 +314,9 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 		});
 
 		// Build the name with emoji + pattern + type badge
-		const nameEl = document.createDocumentFragment();
+		const nameEl = createFragment();
 		
-		const emojiSpan = document.createElement('span');
-		emojiSpan.addClass('ptc-mapping-emoji');
+		const emojiSpan = createSpan({ cls: 'ptc-mapping-emoji' });
 		if (isLucideIcon(mapping.icon)) {
 			// Render Lucide icon
 			const iconName = getLucideIconName(mapping.icon);
@@ -328,7 +327,7 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 		}
 		nameEl.appendChild(emojiSpan);
 		
-		const matchSpan = document.createElement('span');
+		const matchSpan = createSpan();
 		if (mapping.type === 'regex') {
 			matchSpan.addClass('ptc-regex-pattern');
 		}
@@ -337,16 +336,14 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 		
 		// Show type badge for non-exact types
 		if (mapping.type !== 'exact') {
-			const badgeSpan = document.createElement('span');
-			badgeSpan.addClass('ptc-type-badge');
+			const badgeSpan = createSpan({ cls: 'ptc-type-badge' });
 			badgeSpan.textContent = PATTERN_TYPE_LABELS[mapping.type] || mapping.type;
 			nameEl.appendChild(badgeSpan);
 		}
 
 		// Show match count badge
 		const matchCount = this.countMatchingFiles(mapping);
-		const countBadge = document.createElement('span');
-		countBadge.addClass('ptc-count-badge');
+		const countBadge = createSpan({ cls: 'ptc-count-badge' });
 		countBadge.textContent = `${matchCount} file${matchCount !== 1 ? 's' : ''}`;
 		if (matchCount === 0) {
 			countBadge.addClass('ptc-count-zero');
@@ -356,8 +353,7 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 		// Show conflict badge if this mapping has conflicts
 		const conflicts = this.getMappingConflicts(mapping, index);
 		if (conflicts.length > 0) {
-			const conflictBadge = document.createElement('span');
-			conflictBadge.addClass('ptc-conflict-badge');
+			const conflictBadge = createSpan({ cls: 'ptc-conflict-badge' });
 			conflictBadge.textContent = `⚠️ ${conflicts.length} conflict${conflicts.length !== 1 ? 's' : ''}`;
 			conflictBadge.setAttribute('role', 'button');
 			conflictBadge.setAttribute('tabindex', '0');
@@ -527,7 +523,7 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 	/**
 	 * Toggle conflict details display
 	 */
-	private toggleConflictDetails(wrapper: HTMLElement, settingEl: HTMLElement, mapping: IconMapping, index: number, conflicts: Array<{ file: TFile; winningIndex: number; winningMapping: IconMapping }>): void {
+	private toggleConflictDetails(wrapper: HTMLElement, _settingEl: HTMLElement, _mapping: IconMapping, index: number, conflicts: Array<{ file: TFile; winningIndex: number; winningMapping: IconMapping }>): void {
 		// Remove existing details if present
 		const existingDetails = wrapper.querySelector('.ptc-conflict-details');
 		if (existingDetails) {
@@ -548,7 +544,7 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 			const conflictItem = conflictsList.createDiv({ cls: 'ptc-conflict-item' });
 			
 			// File name (clickable to open)
-			const fileNameEl = conflictItem.createEl('span', { cls: 'ptc-conflict-file', text: file.basename });
+			const fileNameEl = conflictItem.createSpan({ cls: 'ptc-conflict-file', text: file.basename });
 			fileNameEl.setAttribute('role', 'button');
 			fileNameEl.setAttribute('title', 'Click to open file');
 			fileNameEl.addEventListener('click', () => {
@@ -558,7 +554,7 @@ export class PinnedTabsCustomizerSettingTab extends PluginSettingTab {
 			conflictItem.createSpan({ text: ' → ' });
 
 			// Winning rule info
-			const winningRuleEl = conflictItem.createEl('span', { cls: 'ptc-conflict-rule' });
+			const winningRuleEl = conflictItem.createSpan({ cls: 'ptc-conflict-rule' });
 			winningRuleEl.textContent = `Rule #${winningIndex + 1}`;
 			winningRuleEl.setAttribute('title', `Wins: ${winningMapping.match} (${PATTERN_TYPE_LABELS[winningMapping.type] || winningMapping.type})`);
 
