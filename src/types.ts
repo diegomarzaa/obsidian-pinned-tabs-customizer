@@ -57,6 +57,12 @@ export const DEFAULT_SETTINGS: PinnedTabsCustomizerSettings = {
 export const NATIVE_PIN_ICON = '__native_pin__';
 
 /**
+ * Special marker for the icon a view renders for itself, i.e. the icon the tab
+ * shows when it isn't pinned
+ */
+export const VIEW_ICON = '__view_icon__';
+
+/**
  * Prefix for Lucide icons
  */
 export const LUCIDE_PREFIX = 'lucide:';

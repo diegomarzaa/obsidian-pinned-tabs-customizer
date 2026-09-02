@@ -1,5 +1,5 @@
 import { Menu, Plugin, setIcon, TAbstractFile, TFile } from 'obsidian';
-import { DEFAULT_SETTINGS, NATIVE_PIN_ICON, isLucideIcon, getLucideIconName, type PinnedTabsCustomizerSettings, type PatternType } from './types';
+import { DEFAULT_SETTINGS, NATIVE_PIN_ICON, VIEW_ICON, isLucideIcon, getLucideIconName, type PinnedTabsCustomizerSettings, type PatternType } from './types';
 import { PinnedTabsCustomizerSettingTab } from './settings';
 import { IconPickerModal, FilePickerModal, FolderPickerModal, PatternEditorModal, TagPickerModal } from './modals';
 
@@ -355,7 +355,7 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 	}
 
 	/**
-	 * Resolve the icon for a pinned tab (priority: frontmatter > mappings > default)
+	 * Resolve the icon for a pinned tab (priority: frontmatter > mappings > view icon > default)
 	 */
 	resolveIconForTab(tabEl: HTMLElement): string | null {
 		const file = this.getFileFromTab(tabEl);
@@ -366,6 +366,10 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 
 			const mappingIcon = this.getIconFromMappings(file);
 			if (mappingIcon) return mappingIcon;
+		} else if (tabEl.querySelector('.workspace-tab-header-inner-icon svg')) {
+			// Views without a file (graph, search, plugin views, etc) have no mappings
+			// to match on, so keep the icon the view renders for itself.
+			return VIEW_ICON;
 		}
 
 		if (this.settings.showDefaultIcon) {
@@ -402,13 +406,12 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 
 			if (icon === NATIVE_PIN_ICON) {
 				// Clone the native pin SVG
-				const nativePinSvg = tabEl.querySelector('.workspace-tab-header-status-icon.mod-pinned svg');
-				if (nativePinSvg) {
-					const clonedSvg = nativePinSvg.cloneNode(true) as SVGElement;
-					customIcon.appendChild(clonedSvg);
-				} else {
+				if (!this.cloneTabSvg(tabEl, customIcon, '.workspace-tab-header-status-icon.mod-pinned svg')) {
 					customIcon.textContent = '📌';
 				}
+			} else if (icon === VIEW_ICON) {
+				// Clone the icon the view already renders on its tab
+				this.cloneTabSvg(tabEl, customIcon, '.workspace-tab-header-inner-icon svg');
 			} else if (isLucideIcon(icon)) {
 				// Render Lucide icon using setIcon
 				const iconName = getLucideIconName(icon);
@@ -422,6 +425,17 @@ export default class PinnedTabsCustomizerPlugin extends Plugin {
 		} else {
 			this.clearTabIcon(tabEl);
 		}
+	}
+
+	/**
+	 * Copy an SVG that Obsidian rendered on a tab into our own icon element
+	 */
+	cloneTabSvg(tabEl: HTMLElement, target: HTMLElement, selector: string): boolean {
+		const svg = tabEl.querySelector(selector);
+		if (!svg) return false;
+
+		target.appendChild(svg.cloneNode(true));
+		return true;
 	}
 
 	/**
